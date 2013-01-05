@@ -14,19 +14,17 @@ public class WeightReducer extends Reducer<Text, Text, Text, Text>
 	private MultipleOutputs<Text, Text> multipleOutputs;
 	private BigInteger totalweight = BigInteger.ZERO;
 	private static String recordBasePath = NAMES.RECORD + "/part";
-	private static String totalweightBasePath;// = //NAMES.TOTALWEIGHT + "/part";
+	private static String totalweightBasePath = NAMES.TOTALWEIGHT + "/part";
 	
 	@Override
 	protected void setup(Context context)
 	{
 		multipleOutputs = new MultipleOutputs<Text, Text>(context);
-		totalweightBasePath = context.getConfiguration().get(NAMES.TOTALWEIGHT_PATH.toString());
 	}
 	
 	@Override
 	protected void cleanup(Context context) throws IOException, InterruptedException
 	{
-		System.out.println("calcuted weight!!!");
 		multipleOutputs.write(new Text(totalweight.toString()), new Text(), totalweightBasePath);
 		multipleOutputs.close();
 	}
@@ -40,8 +38,7 @@ public class WeightReducer extends Reducer<Text, Text, Text, Text>
 		{
 			localweight = localweight.add(new BigInteger(value.toString()));
 		}
-//		multipleOutputs.write(key, new Text(localweight.toString()), recordBasePath);
-		context.write(key, new Text(localweight.toString()));
+		multipleOutputs.write(key, new Text(localweight.toString()), recordBasePath);
 		totalweight = totalweight.add(localweight);
 	}
 }

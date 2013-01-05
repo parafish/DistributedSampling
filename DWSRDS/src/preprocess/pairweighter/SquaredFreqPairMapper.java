@@ -17,7 +17,7 @@ public class SquaredFreqPairMapper extends AbstractPairMapper
 		List<T> leftRecord = new ArrayList<T>(Arrays.asList(items1));
 		List<T> rightRecord = new ArrayList<T>(Arrays.asList(items2));
 		
-		leftRecord.retainAll(rightRecord);
+		leftRecord.retainAll(rightRecord);		// FIXME: change list to set!!!w
 		
 		return new BigInteger("2").pow(leftRecord.size());
 	}

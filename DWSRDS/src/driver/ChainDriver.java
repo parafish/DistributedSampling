@@ -85,7 +85,7 @@ public class ChainDriver extends Configured implements Tool
 		// reducer
 		job.setReducerClass(ChainReducer.class);
 		
-		job.getConfiguration().set(NAMES.TOTALWEIGHT_PATH.toString(), PARAMETERS.localTotalweightPath.toString());
+		job.getConfiguration().set(NAMES.TOTALWEIGHT.toString(), PARAMETERS.localInputPath.toString());
 		ChainReducer.setReducer(job, WeightReducer.class, 
 						Text.class, Text.class, Text.class, Text.class, job.getConfiguration());
 		

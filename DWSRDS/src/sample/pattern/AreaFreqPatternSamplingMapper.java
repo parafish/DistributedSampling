@@ -38,7 +38,7 @@ public class AreaFreqPatternSamplingMapper extends AbstractPatternSamplingMapper
 		Path inputfilepath = new Path(context.getConfiguration().get(NAMES.ORI_FILE_1.toString()));	
 		String[] record = readRecord(fs, inputfilepath, key.toString()).split(" ");
 
-		List<String> pattern = sampleUniformly(Arrays.asList(record));
+		List<String> pattern = sampleWeighted(Arrays.asList(record));
 		
 		if (pattern.size() == 0)
 			return;

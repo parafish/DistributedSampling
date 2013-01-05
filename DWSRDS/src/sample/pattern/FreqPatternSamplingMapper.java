@@ -35,6 +35,5 @@ public class FreqPatternSamplingMapper extends AbstractPatternSamplingMapper
 		builder.deleteCharAt(builder.lastIndexOf(" "));
 
 		context.write(new Text(builder.toString()), NullWritable.get());
-
 	}
 }

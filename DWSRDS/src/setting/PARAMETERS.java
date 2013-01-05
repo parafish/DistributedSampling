@@ -5,10 +5,10 @@ import org.apache.hadoop.fs.Path;
 
 public class PARAMETERS
 {
-	public static Path localInputPath = new Path("/home/zheyi/sampling/data/iris.dat");
+	public static Path localInputPath = new Path("/home/zheyi/sampling/data/mushroom_pos.dat");
+	public static Path locaInputPath2 = new Path("/home/zheyi/sampling/data/mushroom_neg.dat");
 	public static Path localOutputPath = new Path("/home/zheyi/sampling/output");
 	public static Path localTempPath = new Path("/home/zheyi/sampling/temp");
-	public static Path localTotalweightPath = new Path("/home/zheyi/sampling/totalweight");
 	
 	public static Path pseudoInputPath = new Path("input/iris.dat");
 	public static Path pseudoOutputPath = new Path("output");

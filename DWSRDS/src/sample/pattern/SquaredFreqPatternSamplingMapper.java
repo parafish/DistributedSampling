@@ -29,8 +29,8 @@ public class SquaredFreqPatternSamplingMapper extends AbstractPatternSamplingMap
 		String [] record1 = readRecord(fs, inputfilepath, index1).split(" ");
 		String [] record2 = readRecord(fs, inputfilepath, index2).split(" ");
 
-		List<String> intersect = Arrays.asList(record1);
-		intersect.retainAll(Arrays.asList(record2));
+		List<String> intersect = new ArrayList<String>(Arrays.asList(record1));
+		intersect.retainAll(new ArrayList<String>(Arrays.asList(record2)));
 		
 		List<String> pattern = sampleUniformly(intersect);
 		

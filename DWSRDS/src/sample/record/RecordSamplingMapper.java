@@ -1,41 +1,29 @@
 package sample.record;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.Random;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import setting.NAMES;
 
-public class RecordSamplingMapper extends Mapper<Text, Text, Text, Text>
+public class RecordSamplingMapper extends Mapper<Text, Text, Text, IntWritable>
 {
-	private static final Text one = new Text("1");
+	private static final IntWritable one = new IntWritable(1);
 	private BigInteger totalweight = null;
 	private String nSamplers = null;
 
 	@Override
-	public void setup(Context context) throws IOException
+	public void setup(Context context)
 	{
-		// do some file splitting here
-		Configuration conf = context.getConfiguration();
-		FileSystem fs = FileSystem.get(conf);
-		FileStatus[] status = fs.listStatus(new Path(conf.get(NAMES.TOTALWEIGHT_PATH.toString())));
-		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(status[0].getPath())));
-		String totalweightString = reader.readLine().split("\t")[0];
-		reader.close();
 		// XXX: change a better way to pass arguments
-		totalweight = new BigInteger(totalweightString);
+		totalweight = new BigInteger(context.getConfiguration().get(NAMES.TOTALWEIGHT.toString()));
 		nSamplers = context.getConfiguration().get(NAMES.NSAMPLES.toString());
 	}
+
 
 	@Override
 	public void map(Text key, Text value, Context context) throws IOException, InterruptedException
