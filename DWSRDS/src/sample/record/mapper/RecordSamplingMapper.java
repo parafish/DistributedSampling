@@ -1,4 +1,4 @@
-package sample.record;
+package sample.record.mapper;
 
 import java.io.IOException;
 import java.math.BigInteger;

@@ -1,4 +1,4 @@
-package preprocess.singleweighter;
+package pre.mapper.single;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -21,7 +21,8 @@ public abstract class AbstractSingleMapper extends Mapper<LongWritable, Text, Te
 	public void map(LongWritable key, Text value, Context context)
 	throws IOException, InterruptedException
 	{
-		String [] items = value.toString().split(" ");		// TODO: change " " (separator) to a variable
+		String [] items = value.toString().split(" ");		
+		// TODO: change " " (separator) to a variable
 		BigInteger weight = calcWeight(items);
 		
 		context.write(new Text(key.toString()) ,  new Text(weight.toString()));

@@ -15,11 +15,11 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import preprocess.WeightReducer;
-import preprocess.pairweighter.DiscriminitivityPairMapper;
-import preprocess.pairweighter.SquaredFreqPairMapper;
-import preprocess.singleweighter.AreaFreqSingleMapper;
-import preprocess.singleweighter.FreqSingleMapper;
+import pre.mapper.pair.DiscriminitivityMapper;
+import pre.mapper.pair.SquaredFreqMapper;
+import pre.mapper.single.AreaFreqMapper;
+import pre.mapper.single.FreqMapper;
+import pre.reducer.WeightReducer;
 
 import setting.NAMES;
 import setting.PARAMETERS;
@@ -47,7 +47,7 @@ public class WeighterMapperTest
 		FileInputFormat.addInputPath(job, input);
 		FileOutputFormat.setOutputPath(job, output);
 
-		job.setMapperClass(FreqSingleMapper.class);	
+		job.setMapperClass(FreqMapper.class);	
 		job.setReducerClass(WeightReducer.class);
 
 		job.setOutputKeyClass(Text.class);
@@ -81,7 +81,7 @@ public class WeighterMapperTest
 		FileInputFormat.addInputPath(job, input1);
 		FileOutputFormat.setOutputPath(job, output);
 
-		job.setMapperClass(DiscriminitivityPairMapper.class);
+		job.setMapperClass(DiscriminitivityMapper.class);
 		job.setReducerClass(WeightReducer.class);
 
 		job.setOutputKeyClass(Text.class);

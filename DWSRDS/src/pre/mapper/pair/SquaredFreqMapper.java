@@ -1,4 +1,4 @@
-package preprocess.pairweighter;
+package pre.mapper.pair;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
-public class SquaredFreqPairMapper extends AbstractPairMapper
+public class SquaredFreqMapper extends AbstractPairMapper
 {
 
 	@Override

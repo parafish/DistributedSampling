@@ -1,4 +1,4 @@
-package preprocess.pairweighter;
+package pre.mapper.pair;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 import setting.NAMES;
 
-public class DiscriminitivityPairMapper extends AbstractPairMapper
+public class DiscriminitivityMapper extends AbstractPairMapper
 {
 
 	@Override

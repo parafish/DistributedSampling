@@ -1,4 +1,4 @@
-package sample.pattern;
+package sample.pattern.mapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-public class AbstractPatternSamplingMapper extends Mapper<Text, Text, Text, NullWritable>
+public class AbstractPatternMapper extends Mapper<Text, Text, Text, NullWritable>
 {
 	// fs - path - offset, return a record (line)
 	protected String readRecord(FileSystem fs, Path input, String offset) throws IOException

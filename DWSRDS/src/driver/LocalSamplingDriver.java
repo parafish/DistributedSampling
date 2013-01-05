@@ -29,17 +29,17 @@ import org.apache.hadoop.util.ToolRunner;
 
 import com.thoughtworks.paranamer.DefaultParanamer;
 
-import preprocess.WeightReducer;
-import preprocess.pairweighter.DiscriminitivityPairMapper;
-import preprocess.pairweighter.SquaredFreqPairMapper;
-import preprocess.singleweighter.AreaFreqSingleMapper;
-import preprocess.singleweighter.FreqSingleMapper;
+import pre.mapper.pair.DiscriminitivityMapper;
+import pre.mapper.pair.SquaredFreqMapper;
+import pre.mapper.single.AreaFreqMapper;
+import pre.mapper.single.FreqMapper;
+import pre.reducer.WeightReducer;
 
-import sample.pattern.AreaFreqPatternSamplingMapper;
-import sample.pattern.DiscriminitivityPatternSamplingMapper;
-import sample.pattern.FreqPatternSamplingMapper;
-import sample.pattern.SquaredFreqPatternSamplingMapper;
-import sample.record.RecordSamplingMapper;
+import sample.pattern.mapper.AreaFreqSamplingMapper;
+import sample.pattern.mapper.DiscriminitivitySamplingMapper;
+import sample.pattern.mapper.FreqSamplingMapper;
+import sample.pattern.mapper.SquaredFreqSamplingMapper;
+import sample.record.mapper.RecordSamplingMapper;
 import setting.NAMES;
 import setting.PARAMETERS;
 
@@ -95,17 +95,17 @@ public class LocalSamplingDriver extends Configured implements Tool
 		switch (dist)
 		{
 		case 1:
-			jobPhase1.setMapperClass(FreqSingleMapper.class);
+			jobPhase1.setMapperClass(FreqMapper.class);
 			break;
 		case 2:
-			jobPhase1.setMapperClass(AreaFreqSingleMapper.class);
+			jobPhase1.setMapperClass(AreaFreqMapper.class);
 			break;
 		case 3:
 			jobPhase1.getConfiguration().set(NAMES.ORI_FILE_2.toString(), input2.toString());
-			jobPhase1.setMapperClass(DiscriminitivityPairMapper.class);
+			jobPhase1.setMapperClass(DiscriminitivityMapper.class);
 			break;
 		case 4:
-			jobPhase1.setMapperClass(SquaredFreqPairMapper.class);
+			jobPhase1.setMapperClass(SquaredFreqMapper.class);
 			break;
 		default:
 			System.err.println("distribution not supported");
@@ -152,20 +152,20 @@ public class LocalSamplingDriver extends Configured implements Tool
 		switch (dist)
 		{
 		case 1:
-			ChainMapper.addMapper(jobPhase2, FreqPatternSamplingMapper.class, 
+			ChainMapper.addMapper(jobPhase2, FreqSamplingMapper.class, 
 							Text.class, Text.class, Text.class, NullWritable.class, jobPhase2.getConfiguration());
 			break;
 		case 2:
-			ChainMapper.addMapper(jobPhase2, AreaFreqPatternSamplingMapper.class, 
+			ChainMapper.addMapper(jobPhase2, AreaFreqSamplingMapper.class, 
 							Text.class, Text.class, Text.class, NullWritable.class, jobPhase2.getConfiguration());
 			break;
 		case 3:
 			jobPhase2.getConfiguration().set(NAMES.ORI_FILE_2.toString(), input2.toString());
-			ChainMapper.addMapper(jobPhase2, DiscriminitivityPatternSamplingMapper.class, 
+			ChainMapper.addMapper(jobPhase2, DiscriminitivitySamplingMapper.class, 
 							Text.class, Text.class, Text.class, NullWritable.class, jobPhase2.getConfiguration());
 			break;
 		case 4:
-			ChainMapper.addMapper(jobPhase2, SquaredFreqPatternSamplingMapper.class, 
+			ChainMapper.addMapper(jobPhase2, SquaredFreqSamplingMapper.class, 
 							Text.class, Text.class, Text.class, NullWritable.class, jobPhase2.getConfiguration());
 			break;
 		default:

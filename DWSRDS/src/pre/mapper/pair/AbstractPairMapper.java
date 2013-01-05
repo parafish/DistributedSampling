@@ -1,4 +1,4 @@
-package preprocess.pairweighter;
+package pre.mapper.pair;
 
 import java.io.IOException;
 import java.math.BigInteger;

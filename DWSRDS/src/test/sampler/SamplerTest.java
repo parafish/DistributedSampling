@@ -17,14 +17,14 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import preprocess.WeightReducer;
-import preprocess.singleweighter.AreaFreqSingleMapper;
-import preprocess.singleweighter.FreqSingleMapper;
+import pre.mapper.single.AreaFreqMapper;
+import pre.mapper.single.FreqMapper;
+import pre.reducer.WeightReducer;
 
-import sample.pattern.AreaFreqPatternSamplingMapper;
-import sample.pattern.DiscriminitivityPatternSamplingMapper;
-import sample.pattern.FreqPatternSamplingMapper;
-import sample.record.RecordSamplingMapper;
+import sample.pattern.mapper.AreaFreqSamplingMapper;
+import sample.pattern.mapper.DiscriminitivitySamplingMapper;
+import sample.pattern.mapper.FreqSamplingMapper;
+import sample.record.mapper.RecordSamplingMapper;
 import setting.NAMES;
 import setting.PARAMETERS;
 
@@ -88,7 +88,7 @@ public class SamplerTest
 		FileInputFormat.addInputPath(job, input);
 		FileOutputFormat.setOutputPath(job, output);
 
-		job.setMapperClass(DiscriminitivityPatternSamplingMapper.class);
+		job.setMapperClass(DiscriminitivitySamplingMapper.class);
 
 		// specify the key-value input
 		job.setInputFormatClass(KeyValueTextInputFormat.class);

@@ -24,11 +24,11 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import preprocess.WeightReducer;
-import preprocess.singleweighter.FreqSingleMapper;
+import pre.mapper.single.FreqMapper;
+import pre.reducer.WeightReducer;
 
-import sample.pattern.FreqPatternSamplingMapper;
-import sample.record.RecordSamplingMapper;
+import sample.pattern.mapper.FreqSamplingMapper;
+import sample.record.mapper.RecordSamplingMapper;
 import setting.NAMES;
 import setting.PARAMETERS;
 
@@ -79,7 +79,7 @@ public class ChainDriver extends Configured implements Tool
 		
 		// mapper
 		job.setMapperClass(ChainMapper.class);
-		ChainMapper.addMapper(job, FreqSingleMapper.class, 
+		ChainMapper.addMapper(job, FreqMapper.class, 
 						LongWritable.class, Text.class, Text.class, Text.class, job.getConfiguration());
 		
 		// reducer
@@ -94,7 +94,7 @@ public class ChainDriver extends Configured implements Tool
 						Text.class, Text.class, Text.class, Text.class, job.getConfiguration());
 		
 		job.getConfiguration().set(NAMES.ORI_FILE_1.toString(), input.toString());
-		ChainReducer.addMapper(job, FreqPatternSamplingMapper.class, 
+		ChainReducer.addMapper(job, FreqSamplingMapper.class, 
 						Text.class, Text.class, Text.class, Text.class, job.getConfiguration());
 		
 		int exitCode = job.waitForCompletion(true) ? 0 : 1;

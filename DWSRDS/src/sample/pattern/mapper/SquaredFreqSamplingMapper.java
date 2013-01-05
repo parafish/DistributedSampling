@@ -1,4 +1,4 @@
-package sample.pattern;
+package sample.pattern.mapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.apache.hadoop.io.Text;
 
 import setting.NAMES;
 
-public class SquaredFreqPatternSamplingMapper extends AbstractPatternSamplingMapper
+public class SquaredFreqSamplingMapper extends AbstractPatternMapper
 {
 	@Override
 	public void map(Text key, Text value, Context context) throws IOException,

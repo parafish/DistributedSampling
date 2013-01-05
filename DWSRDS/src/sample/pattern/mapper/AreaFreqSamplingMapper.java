@@ -1,4 +1,4 @@
-package sample.pattern;
+package sample.pattern.mapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import org.apache.hadoop.io.Text;
 
 import setting.NAMES;
 
-public class AreaFreqPatternSamplingMapper extends AbstractPatternSamplingMapper
+public class AreaFreqSamplingMapper extends AbstractPatternMapper
 {
 
 	private <T> List<T> sampleWeighted(List<T> items)

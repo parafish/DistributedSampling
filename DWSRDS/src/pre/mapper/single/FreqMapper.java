@@ -1,8 +1,8 @@
-package preprocess.singleweighter;
+package pre.mapper.single;
 
 import java.math.BigInteger;
 
-public class FreqSingleMapper extends AbstractSingleMapper
+public class FreqMapper extends AbstractSingleMapper
 {
 	@Override
 	protected <T> BigInteger calcWeight(T[] items)
