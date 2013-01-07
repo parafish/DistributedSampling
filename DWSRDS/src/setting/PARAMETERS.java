@@ -18,7 +18,7 @@ public class PARAMETERS
 	
 	// separators
 	public final static String SeparatorItem = " ";
-	public final static String SeparatorIndex = "&";
+	public final static String SeparatorIndex = ",";
 	public final static String SeparatorIndexWeight = " ";
 	
 	Configuration localConf = new Configuration();

@@ -20,18 +20,17 @@ public class DriverTest
 
 		Configuration conf = PARAMETERS.getLocalConf();
 
-		Path input = PARAMETERS.localInputPath;
+		Path input = new Path("/home/zheyi/sampling/data/webdocs.dat");
 		Path input2 = PARAMETERS.localInputPath2;
 		Path output = PARAMETERS.localOutputPath;
 		
 		String nSamples = "10";
-		String distribution  = "3";
+		String distribution  = "1";
 
 		FileSystem fs = FileSystem.get(conf);
 		fs.delete(output, true);
 
 		int exitCode = ToolRunner.run(conf, new ChainDriver(), new String[] { input.toString(),
-			input2.toString(), 
 						output.toString(), nSamples, distribution});
 
 		System.exit(exitCode);

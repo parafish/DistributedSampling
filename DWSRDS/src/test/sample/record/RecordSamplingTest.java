@@ -8,6 +8,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import sample.record.mapper.RecordSamplingMapper;
@@ -22,16 +23,17 @@ public class RecordSamplingTest
 	public void testRecordSamplingMapper()
 	{
 		Configuration conf = new Configuration();
-		conf.set(NAMES.NSAMPLES.name(), "10");
+		conf.set(NAMES.NSAMPLES.name(), "1000");
 		
 		new MapDriver<Text, Text, Text, Text>()
 		.withConfiguration(conf)
 		.withMapper(new RecordSamplingMapper())
-		.withInput(OnlyKey, new Text("1111&&& 1111"))
-		.withInput(OnlyKey, new Text("9999&&& 9999"))
+		.withInput(OnlyKey, new Text("1111&&&index 1111"))
+		.withInput(OnlyKey, new Text("9999&&&index 9999"))
 		.runTest();
 	}
 	
+	@Ignore
 	@Test
 	public void testRecordSamplingReducer()
 	{
@@ -40,7 +42,7 @@ public class RecordSamplingTest
 		inputvalues.add(new Text("index2222 0.1"));
 		
 		Configuration conf = new Configuration();
-		conf.set(NAMES.NSAMPLES.name(), "10");
+		conf.set(NAMES.NSAMPLES.name(), "100");
 		
 		new ReduceDriver<Text, Text, Text, Text>()
 			.withConfiguration(conf)

@@ -32,8 +32,11 @@ public class DiscriminitivitySamplingMapper extends AbstractPatternMapper
 		String index1 = value.toString().split(PARAMETERS.SeparatorIndex)[0];
 		String index2 = value.toString().split(PARAMETERS.SeparatorIndex)[1];
 		
-		final String [] positiveRecord = readRecord(fs, input1, index1).split(PARAMETERS.SeparatorItem);
-		final String [] negativeRecord = readRecord(fs, input2, index2).split(PARAMETERS.SeparatorItem);
+		long offset1 = Long.parseLong(index1);
+		long offset2 = Long.parseLong(index2);
+		
+		final String [] positiveRecord = readRecord(fs, input1, offset1).split(PARAMETERS.SeparatorItem);
+		final String [] negativeRecord = readRecord(fs, input2, offset2).split(PARAMETERS.SeparatorItem);
 	
 		List<String> negList = new ArrayList<String>(Arrays.asList(negativeRecord));
 		

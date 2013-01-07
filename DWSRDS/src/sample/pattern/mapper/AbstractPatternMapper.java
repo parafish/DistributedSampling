@@ -21,13 +21,11 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
 public class AbstractPatternMapper extends Mapper<Text, Text, Text, NullWritable>
 {
 	// fs - path - offset, return a record (line)
-	protected String readRecord(FileSystem fs, Path input, String offset) throws IOException
-	{
-		long index = Long.parseLong(offset);
-		
+	protected String readRecord(FileSystem fs, Path input, long offset) throws IOException
+	{		
 		// find the file
 		FSDataInputStream in = fs.open(input);
-		in.seek(index);
+		in.seek(offset);
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		String record = reader.readLine();

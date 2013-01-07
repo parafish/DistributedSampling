@@ -24,7 +24,8 @@ public class FreqSamplingMapper extends AbstractPatternMapper
 		Path inputfilepath = new Path(context.getConfiguration()
 						.get(NAMES.ORI_FILE_1.toString()));		
 		// TODO: how to keep the original file
-		String[] record = readRecord(fs, inputfilepath, value.toString()).split(PARAMETERS.SeparatorItem);
+		long offset = Long.parseLong(value.toString());
+		String[] record = readRecord(fs, inputfilepath, offset).split(PARAMETERS.SeparatorItem);
 
 		List<String> pattern = sampleUniformly(Arrays.asList(record));
 		

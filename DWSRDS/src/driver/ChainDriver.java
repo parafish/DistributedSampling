@@ -15,6 +15,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.chain.ChainMapper;
 import org.apache.hadoop.mapreduce.lib.chain.ChainReducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -84,8 +85,12 @@ public class ChainDriver extends Configured implements Tool
 		
 		// --------------------------- chain it!
 		// ---------------------------------
-		Job job = new Job(conf, "chain it!");
+		
+		Job job = new Job(conf);// , "distributed sampling");
+		
 		job.setJarByClass(getClass());
+		
+		job.setNumReduceTasks(0);			// must be 1!
 
 		job.getConfiguration().set(NAMES.NSAMPLES.toString(), nSamples);
 		job.getConfiguration().set(NAMES.ORI_FILE_1.toString(), input.toString());
@@ -122,11 +127,12 @@ public class ChainDriver extends Configured implements Tool
 
 		// no weight reducer
 		// sample record mapper
-		ChainMapper.addMapper(job, RecordSamplingMapper.class, Text.class, Text.class, Text.class,
-						Text.class, job.getConfiguration());
+		//ChainMapper.addMapper(job, RecordSamplingMapper.class, Text.class, Text.class, Text.class,
+		//				Text.class, job.getConfiguration());
 
 		// reducer
-		job.setReducerClass(ChainReducer.class);
+		job.setReducerClass(Reducer.class);
+		//job.setReducerClass(ChainReducer.class);
 
 		// only one reducer - sample record reducer
 		ChainReducer.setReducer(job, RecordSamplingReducer.class, Text.class, Text.class,

@@ -57,7 +57,7 @@ public abstract class AbstractPairMapper extends PreMapper
 			for (Map.Entry<String, String []> pair : leftRecords.entrySet())
 			{
 				BigInteger weight = calcWeight(pair.getValue(), rightRecord);
-				String emitKey = pair.getKey() + PARAMETERS.SeparatorIndex + String.valueOf(pos);	 // TODO: change separator
+				String emitKey = pair.getKey() + PARAMETERS.SeparatorIndex + String.valueOf(pos);
 				
 				context.write(OnlyKey, new Text(emitKey + PARAMETERS.SeparatorIndexWeight + weight.toString()));
 			}
