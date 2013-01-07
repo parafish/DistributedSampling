@@ -3,6 +3,7 @@ package sample.pattern.mapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -13,19 +14,30 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
 import setting.NAMES;
+import setting.PARAMETERS;
 
 public class AreaFreqSamplingMapper extends AbstractPatternMapper
 {
+	private Random random = new Random();
 
 	private <T> List<T> sampleWeighted(List<T> items)
 	{
-		ArrayList<T> pattern = new ArrayList<T>();
+		int k = 0;
+		double key = 0.0;
 		// sample k~id(1..n)
-		// FIXME
-		// sample F~(|F|=k)
+		for (int i=1; i<= items.size(); i++)
+		{
+			double currKey = Math.pow(random.nextDouble(), 1.0 / i);
+			if (currKey > key)
+			{
+				key = currKey;
+				k = i;
+			}
+		}
 		
-		// ensure that at least one item in this pattern
-		return pattern;
+		// sample F~(|F|=k)		
+		Collections.shuffle(items);		
+		return items.subList(0, k);
 	}
 	
 	
@@ -36,7 +48,7 @@ public class AreaFreqSamplingMapper extends AbstractPatternMapper
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 		// TODO: how to keep the original file
 		Path inputfilepath = new Path(context.getConfiguration().get(NAMES.ORI_FILE_1.toString()));	
-		String[] record = readRecord(fs, inputfilepath, key.toString()).split(" ");
+		String[] record = readRecord(fs, inputfilepath, value.toString()).split(PARAMETERS.SeparatorItem);
 
 		List<String> pattern = sampleWeighted(Arrays.asList(record));
 		

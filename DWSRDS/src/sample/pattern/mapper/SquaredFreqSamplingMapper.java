@@ -12,6 +12,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
 import setting.NAMES;
+import setting.PARAMETERS;
 
 public class SquaredFreqSamplingMapper extends AbstractPatternMapper
 {
@@ -21,13 +22,14 @@ public class SquaredFreqSamplingMapper extends AbstractPatternMapper
 	{
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 		Path inputfilepath = new Path(context.getConfiguration()
-						.get(NAMES.ORI_FILE_1.toString()));		// TODO: how to keep the original file
+						.get(NAMES.ORI_FILE_1.toString()));		
+		// TODO: how to keep the original file
 		
-		String index1 = key.toString().split(" ")[0];
-		String index2 = key.toString().split(" ")[1];
+		String index1 = value.toString().split(PARAMETERS.SeparatorIndex)[0];
+		String index2 = value.toString().split(PARAMETERS.SeparatorIndex)[1];
 		
-		String [] record1 = readRecord(fs, inputfilepath, index1).split(" ");
-		String [] record2 = readRecord(fs, inputfilepath, index2).split(" ");
+		String [] record1 = readRecord(fs, inputfilepath, index1).split(PARAMETERS.SeparatorItem);
+		String [] record2 = readRecord(fs, inputfilepath, index2).split(PARAMETERS.SeparatorItem);
 
 		List<String> intersect = new ArrayList<String>(Arrays.asList(record1));
 		intersect.retainAll(new ArrayList<String>(Arrays.asList(record2)));

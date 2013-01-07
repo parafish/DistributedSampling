@@ -16,6 +16,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 
 public class AbstractPatternMapper extends Mapper<Text, Text, Text, NullWritable>
 {
@@ -46,8 +47,8 @@ public class AbstractPatternMapper extends Mapper<Text, Text, Text, NullWritable
 			if (random.nextBoolean())
 				pattern.add(t);
 		}
-		
-		// ensure that at least one item in this pattern	// TODO: should we do this? maybe no
+
 		return pattern;
 	}
+	
 }

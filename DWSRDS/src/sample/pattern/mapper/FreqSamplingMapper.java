@@ -12,6 +12,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
 import setting.NAMES;
+import setting.PARAMETERS;
 
 public class FreqSamplingMapper extends AbstractPatternMapper
 {
@@ -21,8 +22,9 @@ public class FreqSamplingMapper extends AbstractPatternMapper
 	{
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 		Path inputfilepath = new Path(context.getConfiguration()
-						.get(NAMES.ORI_FILE_1.toString()));		// TODO: how to keep the original file
-		String[] record = readRecord(fs, inputfilepath, key.toString()).split(" ");
+						.get(NAMES.ORI_FILE_1.toString()));		
+		// TODO: how to keep the original file
+		String[] record = readRecord(fs, inputfilepath, value.toString()).split(PARAMETERS.SeparatorItem);
 
 		List<String> pattern = sampleUniformly(Arrays.asList(record));
 		

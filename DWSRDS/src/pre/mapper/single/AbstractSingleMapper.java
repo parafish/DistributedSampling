@@ -8,23 +8,32 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 
+import pre.mapper.PreMapper;
+
+import setting.PARAMETERS;
+
 /**
  * 
  * @author zheyi
- *
+ * 
  */
-public abstract class AbstractSingleMapper extends Mapper<LongWritable, Text, Text, Text>
+public abstract class AbstractSingleMapper extends PreMapper
 {
-	protected abstract <T> BigInteger calcWeight(T [] items);
-	
+	private Text OnlyKey = new Text("1"); // dummy key. to avoid sorting
+
+
+	protected abstract <T> BigInteger calcWeight(T[] items);
+
+
 	@Override
-	public void map(LongWritable key, Text value, Context context)
-	throws IOException, InterruptedException
+	public void map(LongWritable key, Text value, Context context) throws IOException,
+					InterruptedException
 	{
-		String [] items = value.toString().split(" ");		
-		// TODO: change " " (separator) to a variable
+		String[] items = value.toString().split(PARAMETERS.SeparatorItem);
 		BigInteger weight = calcWeight(items);
-		
-		context.write(new Text(key.toString()) ,  new Text(weight.toString()));
+
+		context.write(OnlyKey,
+						new Text(key.toString() + PARAMETERS.SeparatorIndexWeight
+										+ weight.toString()));
 	}
 }

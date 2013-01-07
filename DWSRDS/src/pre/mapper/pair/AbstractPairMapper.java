@@ -13,8 +13,14 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
-public abstract class AbstractPairMapper extends Mapper<LongWritable, Text, Text, Text>
+import pre.mapper.PreMapper;
+
+import setting.PARAMETERS;
+
+public abstract class AbstractPairMapper extends PreMapper
 {
+	private Text OnlyKey = new Text("1");	// dummy key. to avoid sorting
+	
 	private Path secondFilePath;
 	private Map<String, String []> leftRecords;
 	
@@ -25,7 +31,6 @@ public abstract class AbstractPairMapper extends Mapper<LongWritable, Text, Text
 	protected void setup(Context context) throws IOException, InterruptedException
 	{
 		// FIXME: single input file required
-		//secondFilePath = 
 		secondFilePath = getSecondFilePath(context); 
 		leftRecords = new HashMap<String, String []>();
 	}
@@ -34,7 +39,7 @@ public abstract class AbstractPairMapper extends Mapper<LongWritable, Text, Text
 	protected void map(LongWritable key, Text value, Context context) throws IOException,
 					InterruptedException
 	{
-		leftRecords.put(key.toString(), value.toString().split(" "));
+		leftRecords.put(key.toString(), value.toString().split(PARAMETERS.SeparatorItem));
 	}
 
 	@Override
@@ -48,13 +53,13 @@ public abstract class AbstractPairMapper extends Mapper<LongWritable, Text, Text
 		long pos = fsDataInputStream.getPos();
 		while ((line = fsDataInputStream.readLine()) != null)		// how to keep line offset
 		{
-			String [] rightRecord = line.split(" ");	// TODO: change " " (separator) to a variable
+			String [] rightRecord = line.split(PARAMETERS.SeparatorItem);	
 			for (Map.Entry<String, String []> pair : leftRecords.entrySet())
 			{
 				BigInteger weight = calcWeight(pair.getValue(), rightRecord);
-				String emitKey = pair.getKey() + " " + String.valueOf(pos);	 // TODO: change separator
+				String emitKey = pair.getKey() + PARAMETERS.SeparatorIndex + String.valueOf(pos);	 // TODO: change separator
 				
-				context.write(new Text(emitKey), new Text(weight.toString()));
+				context.write(OnlyKey, new Text(emitKey + PARAMETERS.SeparatorIndexWeight + weight.toString()));
 			}
 			pos = fsDataInputStream.getPos();
 		}

@@ -5,8 +5,9 @@ import org.apache.hadoop.fs.Path;
 
 public class PARAMETERS
 {
+	// paths
 	public static Path localInputPath = new Path("/home/zheyi/sampling/data/mushroom_pos.dat");
-	public static Path locaInputPath2 = new Path("/home/zheyi/sampling/data/mushroom_neg.dat");
+	public static Path localInputPath2 = new Path("/home/zheyi/sampling/data/mushroom_neg.dat");
 	public static Path localOutputPath = new Path("/home/zheyi/sampling/output");
 	public static Path localTempPath = new Path("/home/zheyi/sampling/temp");
 	
@@ -14,7 +15,12 @@ public class PARAMETERS
 	public static Path pseudoOutputPath = new Path("output");
 	public static Path pseudoTempPath = new Path("temp");
 	
-
+	
+	// separators
+	public final static String SeparatorItem = " ";
+	public final static String SeparatorIndex = "&";
+	public final static String SeparatorIndexWeight = " ";
+	
 	Configuration localConf = new Configuration();
 	
 	public static Configuration getLocalConf()
@@ -33,6 +39,4 @@ public class PARAMETERS
 		
 		return conf;
 	}
-		
-	
 }

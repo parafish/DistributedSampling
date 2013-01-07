@@ -15,6 +15,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
 import setting.NAMES;
+import setting.PARAMETERS;
 
 public class DiscriminitivitySamplingMapper extends AbstractPatternMapper
 {
@@ -28,11 +29,11 @@ public class DiscriminitivitySamplingMapper extends AbstractPatternMapper
 		Path input1 = new Path(context.getConfiguration().get(NAMES.ORI_FILE_1.toString()));		
 		Path input2 = new Path(context.getConfiguration().get(NAMES.ORI_FILE_2.toString()));
 		
-		String index1 = key.toString().split(" ")[0];
-		String index2 = key.toString().split(" ")[1];
+		String index1 = value.toString().split(PARAMETERS.SeparatorIndex)[0];
+		String index2 = value.toString().split(PARAMETERS.SeparatorIndex)[1];
 		
-		final String [] positiveRecord = readRecord(fs, input1, index1).split(" ");
-		final String [] negativeRecord = readRecord(fs, input2, index2).split(" ");
+		final String [] positiveRecord = readRecord(fs, input1, index1).split(PARAMETERS.SeparatorItem);
+		final String [] negativeRecord = readRecord(fs, input2, index2).split(PARAMETERS.SeparatorItem);
 	
 		List<String> negList = new ArrayList<String>(Arrays.asList(negativeRecord));
 		
