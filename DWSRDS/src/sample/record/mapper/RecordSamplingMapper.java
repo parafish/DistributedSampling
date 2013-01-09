@@ -1,14 +1,13 @@
 package sample.record.mapper;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mrunit.types.Pair;
-
 
 import setting.NAMES;
 import setting.PARAMETERS;
@@ -42,9 +41,6 @@ public class RecordSamplingMapper extends Mapper<Text, Text, Text, Text>
 		String weight = indexweight[1];
 		
 		// TODO: do sth on weight
-		
-		
-		
 		// TODO: change it to a 'big' version
 		for (int i =0; i<sample.size(); i++)
 		{

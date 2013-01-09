@@ -1,32 +1,33 @@
 package pre.mapper.pair;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+
+import setting.NAMES;
 
 public class SquaredFreqMapper extends AbstractPairMapper
 {
 
 	@Override
-	protected <T> BigInteger calcWeight(T[] items1, T[] items2)
+	protected <T> BigInteger calcWeight(Set<T> items1, Set<T> items2)
 	{
-		List<T> leftRecord = new ArrayList<T>(Arrays.asList(items1));
-		List<T> rightRecord = new ArrayList<T>(Arrays.asList(items2));
+		Set<T> intersect = new HashSet<T>(items1);
+		intersect.retainAll(items2);
 		
-		leftRecord.retainAll(rightRecord);		// FIXME: change list to set!!!w
+		if (intersect.size() == 0)
+			return BigInteger.ZERO;
 		
-		return new BigInteger("2").pow(leftRecord.size());
+		return new BigInteger("2").pow(intersect.size());
 	}
 
 	@Override
 	protected Path getSecondFilePath(Context context)
 	{
 		//context.getConfiguration().get("secondFilePath");
-		return ((FileSplit)context.getInputSplit()).getPath();
+		return new Path(context.getConfiguration().get(NAMES.ORI_FILE_1.toString()));
 	}
 
 }

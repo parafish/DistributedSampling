@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 import setting.NAMES;
 
@@ -16,15 +15,13 @@ public class DiscriminitivityMapper extends AbstractPairMapper
 {
 
 	@Override
-	protected <T> BigInteger calcWeight(T[] positive, T[] negative)
+	protected <T> BigInteger calcWeight(Set<T> positive, Set<T> negative)
 	{
-		List<T> negList = new ArrayList<T>(Arrays.asList(negative));
+		Set<T> intersect = new HashSet<T> (positive);
+		intersect.retainAll(negative);
 		
-		List<T> complement = new ArrayList<T>(Arrays.asList(positive));
-		complement.removeAll(negList);
-		
-		List<T> intersect = new ArrayList<T>(Arrays.asList(positive));
-		intersect.retainAll(negList);
+		Set<T> complement = new HashSet<T>(positive);
+		complement.removeAll(negative);
 		
 		BigInteger firstPart = new BigInteger("2").pow(complement.size()).subtract(new BigInteger("1"));
 		BigInteger secondPart = new BigInteger("2").pow(intersect.size());

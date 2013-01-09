@@ -2,19 +2,19 @@ package pre.mapper.pair;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 import pre.mapper.PreMapper;
-
 import setting.PARAMETERS;
 
 public abstract class AbstractPairMapper extends PreMapper
@@ -22,9 +22,9 @@ public abstract class AbstractPairMapper extends PreMapper
 	private Text OnlyKey = new Text("1");	// dummy key. to avoid sorting
 	
 	private Path secondFilePath;
-	private Map<String, String []> leftRecords;
+	private Map<String, Set<String>> leftRecords;		// <index, items>
 	
-	protected abstract <T> BigInteger calcWeight(T [] items1, T [] items2);
+	protected abstract <T> BigInteger calcWeight(Set<T> items1, Set<T> items2);
 	protected abstract Path getSecondFilePath(Context context);
 	
 	@Override
@@ -32,14 +32,15 @@ public abstract class AbstractPairMapper extends PreMapper
 	{
 		// FIXME: single input file required
 		secondFilePath = getSecondFilePath(context); 
-		leftRecords = new HashMap<String, String []>();
+		leftRecords = new HashMap<String, Set<String>>();
 	}
 
 	@Override
 	protected void map(LongWritable key, Text value, Context context) throws IOException,
 					InterruptedException
 	{
-		leftRecords.put(key.toString(), value.toString().split(PARAMETERS.SeparatorItem));
+		String [] items = value.toString().split(PARAMETERS.SeparatorItem);
+		leftRecords.put(key.toString(), new HashSet<String>(Arrays.asList(items)));
 	}
 
 	@Override
@@ -51,17 +52,27 @@ public abstract class AbstractPairMapper extends PreMapper
 		String line = null;
 		// TODO: using FSDataInputStream.readLine() is deprecated.
 		long pos = fsDataInputStream.getPos();
+		Set<String> rightRecord = new HashSet<String>();
 		while ((line = fsDataInputStream.readLine()) != null)		// how to keep line offset
 		{
-			String [] rightRecord = line.split(PARAMETERS.SeparatorItem);	
-			for (Map.Entry<String, String []> pair : leftRecords.entrySet())
+			rightRecord.addAll(Arrays.asList(line.split(PARAMETERS.SeparatorItem)));	
+			
+			for (Map.Entry<String, Set<String>> indexitemspair : leftRecords.entrySet())
 			{
-				BigInteger weight = calcWeight(pair.getValue(), rightRecord);
-				String emitKey = pair.getKey() + PARAMETERS.SeparatorIndex + String.valueOf(pos);
+				BigInteger weight = calcWeight(indexitemspair.getValue(), rightRecord);
+				
+				if (weight.compareTo(BigInteger.ZERO) == 0)	// if weight == 0, skip this item
+					continue;
+				
+				String emitKey = indexitemspair.getKey() + PARAMETERS.SeparatorIndex + String.valueOf(pos);
 				
 				context.write(OnlyKey, new Text(emitKey + PARAMETERS.SeparatorIndexWeight + weight.toString()));
 			}
+			
+			context.progress();	// report progress
+			
 			pos = fsDataInputStream.getPos();
+			rightRecord.clear();
 		}
 	}
 }
