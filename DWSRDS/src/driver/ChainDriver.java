@@ -161,6 +161,8 @@ public class ChainDriver extends Configured implements Tool
 	// for testing
 	public static void main(String[] args) throws Exception
 	{
+		
+		
 		int exitCode = ToolRunner.run(new ChainDriver(), args);
 
 		System.exit(exitCode);
