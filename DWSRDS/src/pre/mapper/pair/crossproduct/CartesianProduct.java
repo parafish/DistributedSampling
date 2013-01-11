@@ -1,7 +1,6 @@
 package pre.mapper.pair.crossproduct;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -93,8 +92,8 @@ public class CartesianProduct
 
 			// create our CompositeInputSplits, size equal to
 			// left.length * right.length
-			List<InputSplit> returnSplits = new ArrayList<InputSplit>(
-							leftSplits.size() * rightSplits.size());
+			List<InputSplit> returnSplits = new ArrayList<InputSplit>(leftSplits.size()
+							* rightSplits.size());
 			try
 			{
 				for (InputSplit left : leftSplits)
@@ -103,7 +102,7 @@ public class CartesianProduct
 						CompositeInputSplit oneSplit = new CompositeInputSplit(2);
 						oneSplit.add(left);
 						oneSplit.add(right);
-						
+
 						returnSplits.add(oneSplit);
 					}
 			}
@@ -111,7 +110,7 @@ public class CartesianProduct
 			{
 				e.printStackTrace();
 			}
-			
+
 			System.out.println("# splits : " + returnSplits.size());
 
 			return returnSplits;
@@ -119,11 +118,11 @@ public class CartesianProduct
 
 
 		@Override
-		public RecordReader<Text, Text> createRecordReader(InputSplit split, TaskAttemptContext context)
-						throws IOException, InterruptedException
+		public RecordReader<Text, Text> createRecordReader(InputSplit split,
+						TaskAttemptContext context) throws IOException, InterruptedException
 		{
-			
-			// create a new instance of the Cartesian record reader			
+
+			// create a new instance of the Cartesian record reader
 			CartesianRecordReader reader = new CartesianRecordReader();
 			return reader;
 		}
@@ -157,18 +156,18 @@ public class CartesianProduct
 						InterruptedException
 		{
 			CompositeInputSplit split = (CompositeInputSplit) _split;
-			
+
 			this.rightContext = context;
 			this.rightIS = split.get(1);
 
 			try
 			{
 				// create left record reader
-				TextInputFormat leftFIF = (TextInputFormat) ReflectionUtils.newInstance(
+				FileInputFormat leftFIF = (FileInputFormat) ReflectionUtils.newInstance(
 								Class.forName(context.getConfiguration().get(
 												CartesianInputFormat.LEFT_INPUT_FORMAT)),
 								context.getConfiguration());
-				
+
 				leftRR = leftFIF.createRecordReader(split.get(0), context);
 				leftRR.initialize(split.get(0), context);
 
@@ -189,7 +188,7 @@ public class CartesianProduct
 
 		@Override
 		public boolean nextKeyValue() throws IOException, InterruptedException
-		{			
+		{
 			do
 			{
 				// read the next left record?
@@ -208,8 +207,7 @@ public class CartesianProduct
 						goToNextLeft = false;
 						alldone = false;
 
-						this.rightRR = this.rightFIF.createRecordReader(this.rightIS,
-										this.rightContext);
+						rightRR = rightFIF.createRecordReader(rightIS, rightContext);
 						rightRR.initialize(rightIS, rightContext);
 					}
 				}
@@ -223,6 +221,7 @@ public class CartesianProduct
 				else
 				{
 					goToNextLeft = true;
+					rightRR.close();
 				}
 			} while (goToNextLeft);
 
@@ -247,7 +246,7 @@ public class CartesianProduct
 		@Override
 		public float getProgress() throws IOException, InterruptedException
 		{
-			return alldone ? 1.0f : 0.0f;
+			return leftRR.getProgress();
 		}
 
 
@@ -263,28 +262,44 @@ public class CartesianProduct
 	// complete
 	public static class CartesianMapper extends Mapper<Text, Text, NullWritable, Text>
 	{
+		private long count = 0;
+
+
 		@Override
 		public void map(Text key, Text value, Context context) throws IOException,
 						InterruptedException
 		{
 			Set<String> leftRecord = new HashSet<String>(Arrays.asList(key.toString().split(" ")));
-			Set<String> rightRecord = new HashSet<String>(Arrays.asList(value.toString().split(" ")));
+			Set<String> rightRecord = new HashSet<String>(
+							Arrays.asList(value.toString().split(" ")));
 			leftRecord.retainAll(rightRecord);
-			
+
 			if (leftRecord.size() != 0)
-				context.write(NullWritable.get(), new Text(new BigInteger("2").pow(leftRecord.size()).toString()));
+			// context.write(NullWritable.get(),
+			// new Text(new BigInteger("2").pow(leftRecord.size()).toString()));
+			// context.write(NullWritable.get(), new
+			// Text(String.valueOf(count)));
+				count++;
+		}
+
+
+		@Override
+		public void cleanup(Context context) throws IOException, InterruptedException
+		{
+			context.write(NullWritable.get(), new Text(String.valueOf(count)));
 		}
 	}
+
 
 	// complete
 	public static void main(String[] args) throws IOException, InterruptedException,
 					ClassNotFoundException
 	{
-		
+
 		Path inputLeft = new Path(args[0]);
 		Path inputRight = new Path(args[1]);
-		Path output = new Path("/home/zheyi/sampling/output");
-		
+		Path output = new Path(args[2]);
+
 		Job job = new Job();
 		job.setJarByClass(CartesianProduct.class);
 
@@ -294,19 +309,17 @@ public class CartesianProduct
 		job.setInputFormatClass(CartesianInputFormat.class);
 
 		// configure the input format
-		CartesianInputFormat.setLeftInputInfo(job, TextInputFormat.class,
-						inputLeft.toString());
-		CartesianInputFormat.setRightInputInfo(job, TextInputFormat.class,
-						inputRight.toString());
+		CartesianInputFormat.setLeftInputInfo(job, TextInputFormat.class, inputLeft.toString());
+		CartesianInputFormat.setRightInputInfo(job, TextInputFormat.class, inputRight.toString());
 
 		FileOutputFormat.setOutputPath(job, output);
-		
+
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 
-		FileSystem fs = FileSystem.getLocal(job.getConfiguration());
+		FileSystem fs = FileSystem.get(job.getConfiguration());
 		fs.delete(output, true);
-		
+
 		int exitCode = job.waitForCompletion(true) ? 0 : 1;
 
 		System.exit(exitCode);
