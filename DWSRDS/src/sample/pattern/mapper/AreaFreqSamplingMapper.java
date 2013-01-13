@@ -1,7 +1,6 @@
 package sample.pattern.mapper;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -9,11 +8,9 @@ import java.util.Random;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
-import setting.NAMES;
 import setting.PARAMETERS;
 
 public class AreaFreqSamplingMapper extends AbstractPatternMapper
@@ -36,21 +33,22 @@ public class AreaFreqSamplingMapper extends AbstractPatternMapper
 		}
 		
 		// sample F~(|F|=k)		
+		// XXX: keep ascending order
 		Collections.shuffle(items);		
 		return items.subList(0, k);
 	}
 	
 	
 	@Override
-	public void map(Text key, Text value, Context context) throws IOException,
+	public void map(NullWritable key, Text value, Context context) throws IOException,
 					InterruptedException
 	{
 		FileSystem fs = FileSystem.get(context.getConfiguration());
-		// TODO: how to keep the original file
-		Path inputfilepath = new Path(context.getConfiguration().get(NAMES.ORI_FILE_1.toString()));	
+		
+		Path inputfilepath = new Path(context.getConfiguration().get(PARAMETERS.LEFT_PATH));
 		long offset = Long.parseLong(value.toString());
 		
-		String[] record = readRecord(fs, inputfilepath, offset).split(PARAMETERS.SeparatorItem);
+		String[] record = readRecord(fs, inputfilepath, offset).split(PARAMETERS.SepItems);
 
 		List<String> pattern = sampleWeighted(Arrays.asList(record));
 		
@@ -62,7 +60,7 @@ public class AreaFreqSamplingMapper extends AbstractPatternMapper
 			builder.append(s).append(" ");
 		builder.deleteCharAt(builder.lastIndexOf(" "));
 
-		context.write(new Text(builder.toString()), NullWritable.get());
+		context.write(NullWritable.get(), new Text(builder.toString()));
 
 	}
 	

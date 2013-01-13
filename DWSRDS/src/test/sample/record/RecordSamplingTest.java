@@ -13,41 +13,40 @@ import org.junit.Test;
 
 import sample.record.mapper.RecordSamplingMapper;
 import sample.record.reducer.RecordSamplingReducer;
-import setting.NAMES;
+import setting.PARAMETERS;
 
 public class RecordSamplingTest
-{
-	private Text OnlyKey = new Text("1");	
-	
+{	
+	@Ignore
 	@Test
 	public void testRecordSamplingMapper()
 	{
 		Configuration conf = new Configuration();
-		conf.set(NAMES.NSAMPLES.name(), "1000");
+		conf.set(PARAMETERS.N_SAMPLES, "10");
 		
-		new MapDriver<Text, Text, Text, Text>()
+		new MapDriver<NullWritable, Text, NullWritable, Text>()
 		.withConfiguration(conf)
 		.withMapper(new RecordSamplingMapper())
-		.withInput(OnlyKey, new Text("1111&&&index 1111"))
-		.withInput(OnlyKey, new Text("9999&&&index 9999"))
+		.withInput(NullWritable.get(), new Text("5555&&&index 5556"))
+		.withInput(NullWritable.get(), new Text("9999&&&index 5555"))
 		.runTest();
 	}
 	
-	@Ignore
 	@Test
 	public void testRecordSamplingReducer()
 	{
+		int n = 100;
 		List<Text> inputvalues = new ArrayList<Text>();
-		inputvalues.add(new Text("index1111 0.9"));
-		inputvalues.add(new Text("index2222 0.1"));
-		
+		for (int i=0; i< 2*n ; i++)
+			inputvalues.add(new Text("index" + i + " " + i));
+			
 		Configuration conf = new Configuration();
-		conf.set(NAMES.NSAMPLES.name(), "100");
+		conf.set(PARAMETERS.N_SAMPLES, String.valueOf(n));
 		
-		new ReduceDriver<Text, Text, Text, Text>()
+		new ReduceDriver<NullWritable, Text, NullWritable, Text>()
 			.withConfiguration(conf)
 			.withReducer(new RecordSamplingReducer())
-			.withInput(OnlyKey, inputvalues)
+			.withInput(NullWritable.get(), inputvalues)
 			.runTest();
 			
 	}

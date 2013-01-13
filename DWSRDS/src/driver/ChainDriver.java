@@ -4,12 +4,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.chain.ChainMapper;
 import org.apache.hadoop.mapreduce.lib.chain.ChainReducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -17,6 +18,7 @@ import org.apache.hadoop.util.ToolRunner;
 import pre.mapper.PreMapper;
 import pre.mapper.pair.DiscriminitivityMapper;
 import pre.mapper.pair.SquaredFreqMapper;
+import pre.mapper.pair.crossproduct.CartesianProduct.CartesianInputFormat;
 import pre.mapper.single.AreaFreqMapper;
 import pre.mapper.single.FreqMapper;
 import sample.pattern.mapper.AbstractPatternMapper;
@@ -26,7 +28,7 @@ import sample.pattern.mapper.FreqSamplingMapper;
 import sample.pattern.mapper.SquaredFreqSamplingMapper;
 import sample.record.mapper.RecordSamplingMapper;
 import sample.record.reducer.RecordSamplingReducer;
-import setting.NAMES;
+import setting.PARAMETERS;
 
 public class ChainDriver extends Configured implements Tool
 {
@@ -66,8 +68,8 @@ public class ChainDriver extends Configured implements Tool
 
 		Configuration conf = getConf();
 
+		// delete the output
 		FileSystem fs = FileSystem.get(conf);
-
 		fs.delete(output, true);
 
 		// --------------------------- chain it!
@@ -77,10 +79,9 @@ public class ChainDriver extends Configured implements Tool
 
 		job.setJarByClass(getClass());
 
-		job.getConfiguration().set(NAMES.NSAMPLES.toString(), nSamples);
-		job.getConfiguration().set(NAMES.ORI_FILE_1.toString(), input.toString());
+		job.getConfiguration().set(PARAMETERS.N_SAMPLES, nSamples);
+		job.getConfiguration().set(PARAMETERS.LEFT_PATH, input.toString());
 
-		FileInputFormat.addInputPath(job, input);
 		FileOutputFormat.setOutputPath(job, output);
 
 		// prepare mappers
@@ -90,22 +91,31 @@ public class ChainDriver extends Configured implements Tool
 		{
 		case 1:
 			weightMapper = new FreqMapper();
+			job.setInputFormatClass(TextInputFormat.class);
+			FileInputFormat.addInputPath(job, input);
 			break;
 		case 2:
 			weightMapper = new AreaFreqMapper();
+			job.setInputFormatClass(TextInputFormat.class);
+			FileInputFormat.addInputPath(job, input);
 			break;
 		case 3:
 			weightMapper = new DiscriminitivityMapper();
-			job.getConfiguration().set(NAMES.ORI_FILE_2.toString(), input2.toString());
+			job.getConfiguration().set(PARAMETERS.RIGHT_PATH, input2.toString());
+			job.setInputFormatClass(CartesianInputFormat.class);
+			CartesianInputFormat.setLeftInputInfo(job, TextInputFormat.class, input.toString());
+			CartesianInputFormat.setRightInputInfo(job, TextInputFormat.class, input2.toString());	
 			break;
 		case 4:
 			weightMapper = new SquaredFreqMapper();
+			job.setInputFormatClass(CartesianInputFormat.class);
+			CartesianInputFormat.setLeftInputInfo(job, TextInputFormat.class, input.toString());
+			CartesianInputFormat.setRightInputInfo(job, TextInputFormat.class, input.toString());	
 			break;
 		default:
 			System.err.println("distribution not supported");
 			System.exit(1);
 		}
-		
 		
 		// pattern sampling mapper
 		AbstractPatternMapper patternMapper = null;
@@ -134,11 +144,11 @@ public class ChainDriver extends Configured implements Tool
 		job.setMapperClass(ChainMapper.class);
 		
 		// map to index-weight
-		ChainMapper.addMapper(job, weightMapper.getClass(), LongWritable.class, Text.class,
-						Text.class, Text.class, job.getConfiguration());
+		ChainMapper.addMapper(job, weightMapper.getClass(), Object.class, Text.class,
+						NullWritable.class, Text.class, job.getConfiguration());
 		
 		// map to sampled index-weight'
-		ChainMapper.addMapper(job, RecordSamplingMapper.class, Text.class, Text.class, Text.class,
+		ChainMapper.addMapper(job, RecordSamplingMapper.class, NullWritable.class, Text.class, NullWritable.class,
 						Text.class, job.getConfiguration());
 		
 		// reducer
@@ -146,10 +156,10 @@ public class ChainDriver extends Configured implements Tool
 		job.setReducerClass(ChainReducer.class);
 
 		// only one reducer - sample record reducer
-		ChainReducer.setReducer(job, RecordSamplingReducer.class, Text.class, Text.class,
-						Text.class, Text.class, job.getConfiguration());
+		ChainReducer.setReducer(job, RecordSamplingReducer.class, NullWritable.class, Text.class,
+						NullWritable.class, Text.class, job.getConfiguration());
 
-		ChainReducer.addMapper(job, patternMapper.getClass(), Text.class, Text.class, Text.class,
+		ChainReducer.addMapper(job, patternMapper.getClass(), NullWritable.class, Text.class, NullWritable.class,
 						Text.class, job.getConfiguration());
 
 		int exitCode = job.waitForCompletion(true) ? 0 : 1;
@@ -157,12 +167,9 @@ public class ChainDriver extends Configured implements Tool
 		return exitCode;
 	}
 
-
-	// for testing
+	// for real running !
 	public static void main(String[] args) throws Exception
 	{
-		
-		
 		int exitCode = ToolRunner.run(new ChainDriver(), args);
 
 		System.exit(exitCode);

@@ -1,65 +1,55 @@
 package sample.record.reducer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Mapper.Context;
-import org.apache.hadoop.mrunit.types.Pair;
 
-import setting.NAMES;
 import setting.PARAMETERS;
 
-public class RecordSamplingReducer extends Reducer<Text, Text, Text, Text>
+public class RecordSamplingReducer extends Reducer<NullWritable, Text, NullWritable, Text>
 {
-	private static final Text OnlyKey = new Text("1");
 	private int nSamples = 0;
 	private Random random = null;
 
 	// <key, index>
-	List<Pair<Double, String>> sample;
+	SortedMap<Double, String> sample;
 
 
 	@Override
 	public void setup(Context context)
 	{
 		// get the number of samples
-		nSamples = Integer.parseInt(context.getConfiguration().get(NAMES.NSAMPLES.toString()));
+		nSamples = Integer.parseInt(context.getConfiguration().get(PARAMETERS.N_SAMPLES));
 		random = new Random();
-		sample = new ArrayList<Pair<Double, String>>(nSamples);
-
-		for (int i = 0; i < nSamples; i++)
-			sample.add(new Pair<Double, String>((double) 0, ""));
+		sample = new TreeMap<Double, String>();
 	}
 
 
 	@Override
-	protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException,
-					InterruptedException
+	protected void reduce(NullWritable key, Iterable<Text> values, Context context)
+					throws IOException, InterruptedException
 	{
 		for (Text value : values)
 		{
-			String[] indexweight = value.toString().split(PARAMETERS.SeparatorIndexWeight);
+			String[] indexweight = value.toString().split(PARAMETERS.SepIndexWeight);
 			String index = indexweight[0];
-			String weight = indexweight[1];
+			Double weight = Double.parseDouble(indexweight[1]);
 
 			// TODO: do sth on weight
-			
 			// TODO: change it to a 'big' version
-			for (int i = 0; i < sample.size(); i++)
-			{
-				Double rankKey = Math.pow(random.nextDouble(), 1.0 / Double.parseDouble(weight));
-
-				if (rankKey > sample.get(i).getFirst())
+			if (sample.size() < nSamples)
+				sample.put(weight, index);
+			else
+				if (weight > sample.firstKey())
 				{
-					sample.set(i, new Pair<Double, String>(rankKey, index));
+					sample.remove(sample.firstKey());
+					sample.put(weight, index);
 				}
-			}
 		}
 	}
 
@@ -67,9 +57,7 @@ public class RecordSamplingReducer extends Reducer<Text, Text, Text, Text>
 	@Override
 	public void cleanup(Context context) throws IOException, InterruptedException
 	{
-		for (Pair<Double, String> instance : sample)
-		{
-			context.write(OnlyKey, new Text(instance.getSecond()));
-		}
+		for (String index : sample.values())
+			context.write(NullWritable.get(), new Text(index));
 	}
 }

@@ -6,20 +6,27 @@ import org.apache.hadoop.fs.Path;
 public class PARAMETERS
 {
 	// paths
-	public static Path localInputPath = new Path("/home/zheyi/sampling/data/mushroom_pos.dat");
-	public static Path localInputPath2 = new Path("/home/zheyi/sampling/data/mushroom_neg.dat");
-	public static Path localOutputPath = new Path("/home/zheyi/sampling/output");
-	public static Path localTempPath = new Path("/home/zheyi/sampling/temp");
+	public static final Path localInputPath = new Path("/home/zheyi/sampling/data/mushroom_pos.dat");
+	public static final Path localInputPath2 = new Path("/home/zheyi/sampling/data/mushroom_neg.dat");
+	public static final Path localOutputPath = new Path("/home/zheyi/sampling/output");
+	public static final Path localTempPath = new Path("/home/zheyi/sampling/temp");
 	
-	public static Path pseudoInputPath = new Path("input/iris.dat");
-	public static Path pseudoOutputPath = new Path("output");
-	public static Path pseudoTempPath = new Path("temp");
+	public static final Path pseudoInputPath = new Path("input/iris.dat");
+	public static final Path pseudoOutputPath = new Path("output");
+	public static final Path pseudoTempPath = new Path("temp");
 	
+	// job configurations
+	public static final String LEFT_PATH = "dist.left.path";
+	public static final String RIGHT_PATH = "dist.right.path";
+	public static final String N_SAMPLES = "dist.sample.size";
 	
 	// separators
-	public final static String SeparatorItem = " ";
-	public final static String SeparatorIndex = ",";
-	public final static String SeparatorIndexWeight = " ";
+	public final static String SepItems = " ";
+	public final static String SepIndexes = ",";
+	public final static String SepIndexRecord = ",";
+	public final static String SepIndexWeight = " ";
+	public final static String SepRecords = ",";
+	
 	
 	Configuration localConf = new Configuration();
 	

@@ -2,14 +2,10 @@ package pre.mapper.pair.crossproduct;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -23,6 +19,8 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.join.CompositeInputSplit;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.ReflectionUtils;
+
+import setting.PARAMETERS;
 
 public class CartesianProduct
 {
@@ -90,8 +88,7 @@ public class CartesianProduct
 							.get(RIGHT_INPUT_FORMAT),
 							jobContext.getConfiguration().get(RIGHT_INPUT_PATH));
 
-			// create our CompositeInputSplits, size equal to
-			// left.length * right.length
+			// create our CompositeInputSplits, left.length * right.length
 			List<InputSplit> returnSplits = new ArrayList<InputSplit>(leftSplits.size()
 							* rightSplits.size());
 			try
@@ -121,10 +118,8 @@ public class CartesianProduct
 		public RecordReader<Text, Text> createRecordReader(InputSplit split,
 						TaskAttemptContext context) throws IOException, InterruptedException
 		{
-
 			// create a new instance of the Cartesian record reader
-			CartesianRecordReader reader = new CartesianRecordReader();
-			return reader;
+			return new CartesianRecordReader();
 		}
 
 	}
@@ -232,14 +227,14 @@ public class CartesianProduct
 		@Override
 		public Text getCurrentKey() throws IOException, InterruptedException
 		{
-			return lvalue;
+			return new Text(lkey.toString() + PARAMETERS.SepIndexes + rkey.toString());
 		}
 
 
 		@Override
 		public Text getCurrentValue() throws IOException, InterruptedException
 		{
-			return rvalue;
+			return new Text(lvalue.toString() + PARAMETERS.SepRecords + rvalue.toString());
 		}
 
 
@@ -259,46 +254,32 @@ public class CartesianProduct
 
 	}
 
-	// complete
-	public static class CartesianMapper extends Mapper<Text, Text, NullWritable, Text>
+	// complete, for testing only
+	public static class CartesianMapper extends Mapper<Text, Text, Text, Text>
 	{
-		private long count = 0;
-
-
 		@Override
 		public void map(Text key, Text value, Context context) throws IOException,
 						InterruptedException
 		{
-			Set<String> leftRecord = new HashSet<String>(Arrays.asList(key.toString().split(" ")));
-			Set<String> rightRecord = new HashSet<String>(
-							Arrays.asList(value.toString().split(" ")));
-			leftRecord.retainAll(rightRecord);
-
-			if (leftRecord.size() != 0)
-			// context.write(NullWritable.get(),
-			// new Text(new BigInteger("2").pow(leftRecord.size()).toString()));
-			// context.write(NullWritable.get(), new
-			// Text(String.valueOf(count)));
-				count++;
+			context.write(key, value);
 		}
 
 
 		@Override
 		public void cleanup(Context context) throws IOException, InterruptedException
 		{
-			context.write(NullWritable.get(), new Text(String.valueOf(count)));
+//			context.write(NullWritable.get(), new Text(String.valueOf(count)));
 		}
 	}
-
 
 	// complete
 	public static void main(String[] args) throws IOException, InterruptedException,
 					ClassNotFoundException
 	{
 
-		Path inputLeft = new Path(args[0]);
-		Path inputRight = new Path(args[1]);
-		Path output = new Path(args[2]);
+		Path inputLeft = new Path("/home/zheyi/sampling/data/test.dat");
+		Path inputRight = inputLeft;
+		Path output = new Path("/home/zheyi/sampling/output");
 
 		Job job = new Job();
 		job.setJarByClass(CartesianProduct.class);

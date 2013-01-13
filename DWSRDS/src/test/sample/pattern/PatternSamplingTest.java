@@ -11,23 +11,21 @@ import sample.pattern.mapper.AreaFreqSamplingMapper;
 import sample.pattern.mapper.DiscriminitivitySamplingMapper;
 import sample.pattern.mapper.FreqSamplingMapper;
 import sample.pattern.mapper.SquaredFreqSamplingMapper;
-import setting.NAMES;
+import setting.PARAMETERS;
 
 public class PatternSamplingTest
-{
-	private Text OnlyKey = new Text("1");	
-	
+{	
 	@Ignore
 	@Test
 	public void testFreqPattern()
 	{
 		Configuration conf = new Configuration();
-		conf.set(NAMES.ORI_FILE_1.name(), "/home/zheyi/sampling/data/test.dat");
+		conf.set(PARAMETERS.LEFT_PATH, "/home/zheyi/sampling/data/test.dat");
 		
-		new MapDriver<Text, Text, Text, NullWritable>()
+		new MapDriver<NullWritable, Text, NullWritable, Text>()
 			.withConfiguration(conf)
 			.withMapper(new FreqSamplingMapper())
-			.withInput(OnlyKey, new Text("0"))
+			.withInput(NullWritable.get(), new Text("0"))
 			.runTest();
 	}
 	
@@ -35,12 +33,12 @@ public class PatternSamplingTest
 	public void testAreaFreqPattern()
 	{
 		Configuration conf = new Configuration();
-		conf.set(NAMES.ORI_FILE_1.name(), "/home/zheyi/sampling/data/test.dat");
+		conf.set(PARAMETERS.LEFT_PATH, "/home/zheyi/sampling/data/test.dat");
 		
-		new MapDriver<Text, Text, Text, NullWritable>()
+		new MapDriver<NullWritable, Text, NullWritable, Text>()
 			.withConfiguration(conf)
 			.withMapper(new AreaFreqSamplingMapper())
-			.withInput(OnlyKey, new Text("0"))
+			.withInput(NullWritable.get(), new Text("0"))
 			.runTest();
 	}
 	
@@ -49,13 +47,13 @@ public class PatternSamplingTest
 	public void testDiscriminitivityPattern()
 	{
 		Configuration conf = new Configuration();
-		conf.set(NAMES.ORI_FILE_1.name(), "/home/zheyi/sampling/data/test.dat");
-		conf.set(NAMES.ORI_FILE_2.name(), "/home/zheyi/sampling/data/test.dat");
+		conf.set(PARAMETERS.LEFT_PATH, "/home/zheyi/sampling/data/test.dat");
+		conf.set(PARAMETERS.RIGHT_PATH, "/home/zheyi/sampling/data/test.dat");
 		
-		new MapDriver<Text, Text, Text, NullWritable>()
+		new MapDriver<NullWritable, Text, NullWritable, Text>()
 			.withConfiguration(conf)
 			.withMapper(new DiscriminitivitySamplingMapper())
-			.withInput(OnlyKey, new Text("0&12"))
+			.withInput(NullWritable.get(), new Text("0&12"))
 			.runTest();
 	}
 	
@@ -64,12 +62,12 @@ public class PatternSamplingTest
 	public void testSquaredFreqPattern()
 	{
 		Configuration conf = new Configuration();
-		conf.set(NAMES.ORI_FILE_1.name(), "/home/zheyi/sampling/data/test.dat");
+		conf.set(PARAMETERS.LEFT_PATH, "/home/zheyi/sampling/data/test.dat");
 		
-		new MapDriver<Text, Text, Text, NullWritable>()
+		new MapDriver<NullWritable, Text, NullWritable, Text>()
 			.withConfiguration(conf)
 			.withMapper(new SquaredFreqSamplingMapper())
-			.withInput(OnlyKey, new Text("0&0"))
+			.withInput(NullWritable.get(), new Text("0&0"))
 			.runTest();
 	}
 }
