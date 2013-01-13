@@ -22,7 +22,7 @@ public class DiscriminitivitySamplingMapper extends AbstractPatternMapper
 					InterruptedException
 	{
 		FileSystem fs = FileSystem.get(context.getConfiguration());
-		// TODO: how to keep the original file
+		// XXX: move FileSystem construction to 'setup'
 		Path input1 = new Path(context.getConfiguration().get(PARAMETERS.LEFT_PATH));		
 		Path input2 = new Path(context.getConfiguration().get(PARAMETERS.RIGHT_PATH));
 		

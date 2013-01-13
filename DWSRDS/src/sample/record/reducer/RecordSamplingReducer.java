@@ -1,23 +1,22 @@
 package sample.record.reducer;
 
 import java.io.IOException;
-import java.util.Random;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mrunit.types.Pair;
 
 import setting.PARAMETERS;
 
 public class RecordSamplingReducer extends Reducer<NullWritable, Text, NullWritable, Text>
 {
 	private int nSamples = 0;
-	private Random random = null;
-
+	
 	// <key, index>
-	SortedMap<Double, String> sample;
+	PriorityQueue<Pair<Double, String>> sample;
 
 
 	@Override
@@ -25,8 +24,14 @@ public class RecordSamplingReducer extends Reducer<NullWritable, Text, NullWrita
 	{
 		// get the number of samples
 		nSamples = Integer.parseInt(context.getConfiguration().get(PARAMETERS.N_SAMPLES));
-		random = new Random();
-		sample = new TreeMap<Double, String>();
+		
+		sample  = new PriorityQueue<Pair<Double,String>>(nSamples, new Comparator<Pair<Double, String>>()
+		{
+			@Override
+			public int compare(Pair<Double, String> o1, Pair<Double, String> o2)
+			{
+				return Double.compare(o1.getFirst(), o2.getFirst());
+			}});
 	}
 
 
@@ -42,14 +47,11 @@ public class RecordSamplingReducer extends Reducer<NullWritable, Text, NullWrita
 
 			// TODO: do sth on weight
 			// TODO: change it to a 'big' version
-			if (sample.size() < nSamples)
-				sample.put(weight, index);
-			else
-				if (weight > sample.firstKey())
-				{
-					sample.remove(sample.firstKey());
-					sample.put(weight, index);
-				}
+			
+			sample.add(new Pair<Double, String>(weight, index));
+			
+			if (sample.size() > nSamples)
+				sample.poll();
 		}
 	}
 
@@ -57,7 +59,7 @@ public class RecordSamplingReducer extends Reducer<NullWritable, Text, NullWrita
 	@Override
 	public void cleanup(Context context) throws IOException, InterruptedException
 	{
-		for (String index : sample.values())
-			context.write(NullWritable.get(), new Text(index));
+		for (Pair<Double, String> pair : sample)
+			context.write(NullWritable.get(), new Text(pair.getSecond()));
 	}
 }

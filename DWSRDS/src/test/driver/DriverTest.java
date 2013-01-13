@@ -19,10 +19,10 @@ public class DriverTest
 		Configuration conf = PARAMETERS.getLocalConf();
 
 		Path input = new Path("/home/zheyi/sampling/data/iris.dat");
-		Path input2 = new Path("/home/zheyi/sampling/data/chess.dat");
+		Path input2 = new Path("/home/zheyi/sampling/data/iris.dat");
 		Path output = PARAMETERS.localOutputPath;
 		
-		String nSamples = "10";
+		String nSamples = "1000";
 		String distribution  = "3";
 
 		FileSystem fs = FileSystem.get(conf);

@@ -20,7 +20,6 @@ public class SquaredFreqSamplingMapper extends AbstractPatternMapper
 	{
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 		Path inputfilepath = new Path(context.getConfiguration().get(PARAMETERS.LEFT_PATH));
-		// TODO: how to keep the original file
 
 		String index1 = value.toString().split(PARAMETERS.SepIndexes)[0];
 		String index2 = value.toString().split(PARAMETERS.SepIndexes)[1];
@@ -37,7 +36,7 @@ public class SquaredFreqSamplingMapper extends AbstractPatternMapper
 		List<String> pattern = sampleUniformly(intersect);
 
 		if (pattern.size() == 0) return;
-
+		
 		StringBuilder builder = new StringBuilder();
 		for (String s : pattern)
 			builder.append(s).append(" ");

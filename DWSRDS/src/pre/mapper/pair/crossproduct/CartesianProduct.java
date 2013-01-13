@@ -61,8 +61,8 @@ public class CartesianProduct
 
 				// set the input path for the left data set
 				// XXX: dummy job
-				Job job = new Job();
-				inputFormat.setInputPaths(job, inputPath);
+				Job job = new Job(jobContext.getConfiguration());
+				FileInputFormat.setInputPaths(job, inputPath);
 
 				// get the left input splits
 				return inputFormat.getSplits(job);

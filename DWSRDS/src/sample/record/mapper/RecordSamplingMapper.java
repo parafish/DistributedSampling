@@ -29,7 +29,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		sample = new ArrayList<Pair<Double, String>>(nSamples);
 		
 		for (int i =0; i<nSamples; i++)
-			sample.add(new Pair<Double, String>((double) 0, ""));
+			sample.add(new Pair<Double, String>(0.0d, ""));
 	}
 
 	@Override

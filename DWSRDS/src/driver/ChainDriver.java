@@ -158,7 +158,7 @@ public class ChainDriver extends Configured implements Tool
 		// only one reducer - sample record reducer
 		ChainReducer.setReducer(job, RecordSamplingReducer.class, NullWritable.class, Text.class,
 						NullWritable.class, Text.class, job.getConfiguration());
-
+//
 		ChainReducer.addMapper(job, patternMapper.getClass(), NullWritable.class, Text.class, NullWritable.class,
 						Text.class, job.getConfiguration());
 
