@@ -45,7 +45,6 @@ public class RecordSamplingReducer extends Reducer<NullWritable, Text, NullWrita
 			String index = indexweight[0];
 			Double weight = Double.parseDouble(indexweight[1]);
 
-			// TODO: do sth on weight
 			// TODO: change it to a 'big' version
 			
 			sample.add(new Pair<Double, String>(weight, index));

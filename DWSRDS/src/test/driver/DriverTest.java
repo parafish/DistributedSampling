@@ -23,13 +23,13 @@ public class DriverTest
 		Path output = PARAMETERS.localOutputPath;
 		
 		String nSamples = "1000";
-		String distribution  = "3";
+		String distribution  = "4";
 
 		FileSystem fs = FileSystem.get(conf);
 		fs.delete(output, true);
 
 		int exitCode = ToolRunner.run(conf, new ChainDriver(), new String[] { input.toString(),
-			input2.toString(),
+//			input2.toString(),
 						output.toString(), nSamples, distribution});
 
 		System.exit(exitCode);

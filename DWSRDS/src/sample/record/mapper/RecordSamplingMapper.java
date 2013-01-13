@@ -2,7 +2,9 @@ package sample.record.mapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 import org.apache.hadoop.io.NullWritable;
@@ -17,8 +19,8 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 	private Random random = null;
 	private int nSamples = 0;
 
-	// <key, index>
-	List<Pair<Double, String>> sample;
+	// instances of algorithms
+	List<ReserviorSampler> instances;
 	
 	@Override
 	public void setup(Context context)
@@ -26,10 +28,10 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		// get the number of samples
 		nSamples = Integer.parseInt(context.getConfiguration().get(PARAMETERS.N_SAMPLES));
 		random = new Random();
-		sample = new ArrayList<Pair<Double, String>>(nSamples);
+		instances = new ArrayList<ReserviorSampler>(nSamples);
 		
 		for (int i =0; i<nSamples; i++)
-			sample.add(new Pair<Double, String>(0.0d, ""));
+			instances.add(new ReserviorSampler(1));			// only 1, due to replacement
 	}
 
 	@Override
@@ -39,26 +41,97 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		String index = indexweight[0];
 		String weight = indexweight[1];
 		
-		// TODO: do sth on weight
 		// TODO: change it to a 'big' version
 		// scan n reservoirs
-		for (int i =0; i<sample.size(); i++)
+		for (ReserviorSampler sampler : instances)
 		{
-			Double rankKey = Math.pow(random.nextDouble(), 1.0 / Double.parseDouble(weight));
-			if (rankKey >  sample.get(i).getFirst())
-			{
-				sample.set(i, new Pair<Double, String>(rankKey, index));
-			}
+			sampler.sample(weight, index);
 		}
 	}
 	
 	@Override
 	public void cleanup(Context context) throws IOException, InterruptedException
 	{
-		for (Pair<Double, String> instance : sample)
+		for (ReserviorSampler sampler : instances)
 		{
+			Pair<Double,Object> pair = sampler.getReservior().peek();
+			
 			context.write(NullWritable.get(), 
-				new Text(instance.getSecond() + PARAMETERS.SepIndexWeight + instance.getFirst()));	
+				new Text(pair.getSecond() + PARAMETERS.SepIndexWeight + pair.getFirst()));	
+		}
+	}
+	
+	public static class ReserviorSampler
+	{
+		private final int nSample;
+		private final PriorityQueue<Pair<Double, Object>> reservior;
+		private final Random random;
+		private boolean startjump;
+		private double accumulation;
+		private double Xw;
+		
+		
+		public ReserviorSampler(int n)
+		{
+			nSample = n;
+			reservior = new PriorityQueue<Pair<Double,Object>>(n, new Comparator<Pair<Double, Object>>()
+			{
+				@Override
+				public int compare(Pair<Double, Object> o1, Pair<Double, Object> o2)
+				{
+					return Double.compare(o1.getFirst(), o2.getFirst());
+				}});
+			random = new Random();
+			accumulation = 0.0d;
+			Xw = 0.0d;
+			startjump = true;
+		}
+		
+		public PriorityQueue<Pair<Double,Object>> getReservior()
+		{
+			return reservior;
+		}
+		
+		public boolean sample(String weight, Object value)
+		{
+			double dweight = Double.parseDouble(weight);
+			
+			if (reservior.size() < nSample)		// if the reservoir is not full
+			{
+				double key = Math.pow(random.nextDouble(), 1.0 / dweight);
+				reservior.add(new Pair<Double, Object>(key, value));
+				return true;
+			}
+			else		// if the reservoir is exhausted
+			{
+				if (startjump)
+				{
+					double r = random.nextDouble();
+					Xw = Math.log(r) / Math.log(reservior.peek().getFirst());
+					accumulation = 0.0d;
+					startjump = false;
+				}
+				
+				// if skipped
+				accumulation += dweight;
+				if (accumulation >= Xw)			// no skip
+				{
+					double mini = reservior.poll().getFirst();
+					double tw = Math.pow(mini, dweight);
+					double r2;
+					
+					for (r2=-1; r2 < tw; r2 = random.nextDouble());
+					
+					double key = Math.pow(r2, 1.0d / dweight);
+					
+					reservior.add(new Pair<Double, Object>(key, value));
+					startjump = true;
+					return true;
+				}
+				
+				// skipped
+				return false;
+			}
 		}
 	}
 }
