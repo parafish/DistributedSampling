@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Random;
 
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mrunit.types.Pair;
 
+import rng.RNG;
 import setting.PARAMETERS;
 
 public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritable, Text>
@@ -69,7 +69,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 	{
 		private final int nSample;
 		private final PriorityQueue<Pair<Double, Object>> reservior;
-		private final Random random;
+		private final RNG random;
 		private boolean startjump;
 		private double accumulation;
 		private double Xw;
@@ -87,7 +87,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 									return Double.compare(o1.getFirst(), o2.getFirst());
 								}
 							});
-			random = new Random();
+			random = new RNG();
 			accumulation = 0.0d;
 			Xw = 0.0d;
 			startjump = true;

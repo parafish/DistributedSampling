@@ -2,7 +2,6 @@ package driver;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -69,11 +68,10 @@ public class ChainDriver extends Configured implements Tool
 		Configuration conf = getConf();
 
 		// delete the output
-		FileSystem fs = FileSystem.get(conf);
-		fs.delete(output, true);
+//		FileSystem fs = FileSystem.get(conf);
+//		fs.delete(output, true);
 
-		// --------------------------- chain it!
-		// ---------------------------------
+		// ----------------- chain it! ----------------------------
 
 		Job job = new Job(conf);// , "distributed sampling");
 
@@ -155,10 +153,11 @@ public class ChainDriver extends Configured implements Tool
 		job.setNumReduceTasks(1);
 		job.setReducerClass(ChainReducer.class);
 
-		// only one reducer - sample record reducer
+		// reduce samples from mappers to one sample (size=N_SAMPLES)
 		ChainReducer.setReducer(job, RecordSamplingReducer.class, NullWritable.class, Text.class,
 						NullWritable.class, Text.class, job.getConfiguration());
-//
+
+		// sample patterns from specific index
 		ChainReducer.addMapper(job, patternMapper.getClass(), NullWritable.class, Text.class, NullWritable.class,
 						Text.class, job.getConfiguration());
 

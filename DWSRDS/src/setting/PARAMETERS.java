@@ -5,15 +5,7 @@ import org.apache.hadoop.fs.Path;
 
 public class PARAMETERS
 {
-	// paths
-	public static final Path localInputPath = new Path("/home/zheyi/sampling/data/mushroom_pos.dat");
-	public static final Path localInputPath2 = new Path("/home/zheyi/sampling/data/mushroom_neg.dat");
-	public static final Path localOutputPath = new Path("/home/zheyi/sampling/output");
-	public static final Path localTempPath = new Path("/home/zheyi/sampling/temp");
-	
-	public static final Path pseudoInputPath = new Path("input/iris.dat");
-	public static final Path pseudoOutputPath = new Path("output");
-	public static final Path pseudoTempPath = new Path("temp");
+
 	
 	// job configurations
 	public static final String LEFT_PATH = "dist.left.path";
@@ -27,7 +19,17 @@ public class PARAMETERS
 	public final static String SepIndexWeight = " ";
 	public final static String SepRecords = ",";
 	
+	// paths, for testing only
+	public static final Path localInputPath = new Path("/home/zheyi/sampling/data/mushroom_pos.dat");
+	public static final Path localInputPath2 = new Path("/home/zheyi/sampling/data/mushroom_neg.dat");
+	public static final Path localOutputPath = new Path("/home/zheyi/sampling/output");
+	public static final Path localTempPath = new Path("/home/zheyi/sampling/temp");
 	
+	public static final Path pseudoInputPath = new Path("input/iris.dat");
+	public static final Path pseudoOutputPath = new Path("output");
+	public static final Path pseudoTempPath = new Path("temp");
+	
+	// helpers, for testing only
 	Configuration localConf = new Configuration();
 	
 	public static Configuration getLocalConf()

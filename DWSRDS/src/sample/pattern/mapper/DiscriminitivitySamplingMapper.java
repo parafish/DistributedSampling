@@ -23,6 +23,7 @@ public class DiscriminitivitySamplingMapper extends AbstractPatternMapper
 	{
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 		// XXX: move FileSystem construction to 'setup'
+		// but it limits the index expressiveness
 		Path input1 = new Path(context.getConfiguration().get(PARAMETERS.LEFT_PATH));		
 		Path input2 = new Path(context.getConfiguration().get(PARAMETERS.RIGHT_PATH));
 		
