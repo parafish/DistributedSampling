@@ -15,14 +15,13 @@ public class DriverTest
 	@Test
 	public void testLocal() throws Exception
 	{
-
 		Configuration conf = PARAMETERS.getLocalConf();
 
-		Path input = new Path("/home/zheyi/sampling/data/iris.dat");
-		Path input2 = new Path("/home/zheyi/sampling/data/iris.dat");
+		Path input = new Path("/home/zheyi/sampling/data/chess.dat");
+		Path input2 = new Path("/home/zheyi/sampling/data/chess.dat");
 		Path output = PARAMETERS.localOutputPath;
 		
-		String nSamples = "1000";
+		String nSamples = "5";
 		String distribution  = "4";
 
 		FileSystem fs = FileSystem.get(conf);
