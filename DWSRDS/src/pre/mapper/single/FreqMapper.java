@@ -7,6 +7,7 @@ public class FreqMapper extends AbstractSingleMapper
 	@Override
 	protected <T> BigInteger calcWeight(T[] items)
 	{
-		return new BigInteger("2").pow(items.length);
+		int  exp = items.length > 160 ? 160 : items.length;
+		return new BigInteger("2").pow(exp);
 	}
 }

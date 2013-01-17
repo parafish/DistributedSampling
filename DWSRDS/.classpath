@@ -61,5 +61,6 @@
 	<classpathentry kind="lib" path="/home/zheyi/hadoop-0.22.0/hadoop-mapred-0.22.0.jar" sourcepath="/home/zheyi/hadoop-0.22.0/hadoop-mapred-0.22.0-sources.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="/home/zheyi/hadoop-0.22.0/contrib/mrunit/hadoop-0.22.0-mrunit.jar"/>
+	<classpathentry kind="lib" path="/home/zheyi/apifloat/lib/apfloat.jar" sourcepath="/home/zheyi/apifloat/source"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

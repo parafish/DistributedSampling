@@ -150,7 +150,7 @@ public class ChainDriver extends Configured implements Tool
 						Text.class, job.getConfiguration());
 		
 		// reducer
-		job.setNumReduceTasks(1);
+		job.setNumReduceTasks(0);
 		job.setReducerClass(ChainReducer.class);
 
 		// reduce samples from mappers to one sample (size=N_SAMPLES)

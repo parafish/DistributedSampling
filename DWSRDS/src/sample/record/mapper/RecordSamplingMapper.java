@@ -10,6 +10,9 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mrunit.types.Pair;
+import org.apfloat.Apfloat;
+import org.apfloat.ApfloatMath;
+import org.apfloat.Apint;
 
 import rng.RNG;
 import setting.PARAMETERS;
@@ -43,12 +46,17 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		String index = indexweight[0];
 		String weight = indexweight[1];
 
-		// TODO: change it to a 'big' version
 		// scan n reservoirs
-
 		for (ReserviorSampler sampler : instances)
 		{
-			sampler.sample(weight, index);
+			try
+			{
+				sampler.sample(weight, index);
+			}
+			catch (ArithmeticException e)
+			{
+				context.getCounter("dist.number", "malformed").increment(1);
+			}
 		}
 	}
 
@@ -58,7 +66,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 	{
 		for (ReserviorSampler sampler : instances)
 		{
-			Pair<Double, Object> pair = sampler.getReservior().peek();
+			Pair<Apfloat, Object> pair = sampler.getReservior().peek();
 
 			context.write(NullWritable.get(), new Text(pair.getSecond() + PARAMETERS.SepIndexWeight
 							+ pair.getFirst()));
@@ -68,46 +76,69 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 	public static class ReserviorSampler
 	{
 		private final int nSample;
-		private final PriorityQueue<Pair<Double, Object>> reservior;
+		private final PriorityQueue<Pair<Apfloat, Object>> reservior;
 		private final RNG random;
+		private final int precision;
 		private boolean startjump;
-		private double accumulation;
-		private double Xw;
+		private Apint accumulation;
+		private Apfloat Xw;
 
 
 		public ReserviorSampler(int n)
 		{
+			// with default precision = 100
+			this(n, 50);
+		}
+
+
+		public ReserviorSampler(int n, int p)
+		{
+			precision = p;
+			if (n <= 0) throw new RuntimeException("The size of reservior cannot be zero");
 			nSample = n;
-			reservior = new PriorityQueue<Pair<Double, Object>>(n,
-							new Comparator<Pair<Double, Object>>()
+			reservior = new PriorityQueue<Pair<Apfloat, Object>>(n,
+							new Comparator<Pair<Apfloat, Object>>()
 							{
 								@Override
-								public int compare(Pair<Double, Object> o1, Pair<Double, Object> o2)
+								public int compare(Pair<Apfloat, Object> o1,
+												Pair<Apfloat, Object> o2)
 								{
-									return Double.compare(o1.getFirst(), o2.getFirst());
+									return o1.getFirst().compareTo(o2.getFirst());
 								}
 							});
 			random = new RNG();
-			accumulation = 0.0d;
-			Xw = 0.0d;
+			accumulation = Apint.ZERO;
+			Xw = Apfloat.ZERO;
 			startjump = true;
 		}
 
 
-		public PriorityQueue<Pair<Double, Object>> getReservior()
+		public PriorityQueue<Pair<Apfloat, Object>> getReservior()
 		{
 			return reservior;
 		}
 
 
-		public boolean sample(String weight, Object value)
+		public boolean sample(String w, Object value)
 		{
-			final double dweight = Double.parseDouble(weight);
+			final Apint intWeight = new Apint(w);
+			final Apfloat floatWeight = new Apfloat(w);//, precision);
 
 			if (reservior.size() < nSample) // if the reservoir is not full
 			{
-				double key = Math.pow(random.nextDouble(), 1.0d / dweight);
-				reservior.add(new Pair<Double, Object>(key, value));
+				Apfloat r = new Apfloat(String.valueOf(random.nextDouble()), precision);
+				Apfloat exp = Apfloat.ONE.divide(floatWeight);
+
+				Apfloat key = ApfloatMath.pow(r, exp).precision(precision);
+
+				// System.out.println("First, r : " + r.toString(true));
+				// System.out.println("First, weight: " +
+				// floatWeight.toString(true));
+				// System.out.println("First, exp : " + exp.toString(true));
+				// System.out.println("First, key : " + key.toString(true));
+
+				reservior.add(new Pair<Apfloat, Object>(key, value));
+
 				return true;
 			}
 			else
@@ -115,35 +146,60 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 			{
 				if (startjump)
 				{
-					double r = random.nextDouble();
-					// XXX: note Xw might be -Infinity
-					Xw = Math.log(r) / Math.log(reservior.peek().getFirst());
-					accumulation = 0.0d;
+					double r = 0.0d;
+					while (r == 0.0d || r == 1.0d)
+						r = random.nextDouble(); // r must not be zero or one
+
+					Apfloat rand = new Apfloat(String.valueOf(r), precision);
+					Apfloat Tw = reservior.peek().getFirst();
+
+					Xw = ApfloatMath.log(rand).divide(ApfloatMath.log(Tw));
+
+					accumulation = Apint.ZERO;
 					startjump = false;
 				}
 
 				// if skipped
-				accumulation += dweight;
+				accumulation = accumulation.add(intWeight);
 
-				if (accumulation >= Xw) // no skip
+				if (accumulation.compareTo(Xw) >= 0) // no skip
 				{
-					double mini = reservior.poll().getFirst(); // delete the
+					// TODO: is it a workaround for the problem in ApfloatMath.pow?
+					Apfloat min = reservior.poll().getFirst(); // delete the
 																// minimum
-					double tw = Math.pow(mini, dweight);
-					double r2;
+																// System.out.println("min: "
+																// +
+																// min.toString(true));
+					// TODO: ApfloatMath.pow is problematic
+//					System.out.println("min: " + min.toString(true) +"\tp: "+min.precision());
+//					System.out.println("floatweight: " + floatWeight.toString(true) +"\tp: "+floatWeight.precision());
+					Apfloat tw = null;
+					try{
+						tw = ApfloatMath.pow(min, floatWeight).precision(precision);
+					}
+					catch (ArithmeticException e)
+					{
+//						System.err.println("min\t\t (" + min.precision() + "): " + min.toString(true));
+//						System.err.println("floatWeight\t (" + floatWeight.precision() + "): " + floatWeight.toString(true));
+//						System.err.println(e.getMessage());
+						// FIXME: not true!!!
+						throw e;
+					}
 
-					// FIXME: if the minimum key in the reservor = 1.0d,
+					Apfloat r = new Apfloat(String.valueOf(random.nextDouble()), precision);
+
+					Apfloat r2 = new Apfloat("1", precision).subtract(tw).multiply(r).add(tw);
+					//
+					// if the minimum key in the reservor = 1.0d,
 					// then Xw=-Infinity, tw=1.0d,
 					// therefore random.nextDouble < tw holds forever...
 					// leads to the for-loop below infinite.
-					if (tw >= 1.0d)
-						r2 = 1.0d;
-					else
-						for (r2 = -1; r2 < tw; r2 = random.nextDouble());
+					Apfloat exp = Apfloat.ONE.divide(floatWeight);
+					
+					Apfloat key = ApfloatMath.pow(r2, exp).precision(precision);
 
-					double key = Math.pow(r2, 1.0d / dweight);
-
-					reservior.add(new Pair<Double, Object>(key, value));
+					reservior.add(new Pair<Apfloat, Object>(key, value));
+					
 					startjump = true;
 					return true;
 				}

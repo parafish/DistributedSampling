@@ -7,10 +7,12 @@ package rng;
  */
 public class RNG
 {
-	RngStream rng = new RngStream();
+	final RngStream rng ;
 	
 	public RNG()
 	{
+		rng = new RngStream();
+		
 		rng.increasedPrecis(true);
 	}
 	
