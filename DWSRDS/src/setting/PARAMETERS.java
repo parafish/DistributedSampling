@@ -5,6 +5,10 @@ import org.apache.hadoop.fs.Path;
 
 public class PARAMETERS
 {
+	public static enum  SeminarCounters
+	{
+		MALFORMED
+	}
 
 	
 	// job configurations

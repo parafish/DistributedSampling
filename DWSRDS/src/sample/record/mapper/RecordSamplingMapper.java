@@ -16,6 +16,7 @@ import org.apfloat.Apint;
 
 import rng.RNG;
 import setting.PARAMETERS;
+import setting.PARAMETERS.SeminarCounters;
 
 public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritable, Text>
 {
@@ -55,7 +56,8 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 			}
 			catch (ArithmeticException e)
 			{
-				context.getCounter("dist.number", "malformed").increment(1);
+				context.getCounter(SeminarCounters.MALFORMED).increment(1);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -69,7 +71,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 			Pair<Apfloat, Object> pair = sampler.getReservior().peek();
 
 			context.write(NullWritable.get(), new Text(pair.getSecond() + PARAMETERS.SepIndexWeight
-							+ pair.getFirst()));
+							+ pair.getFirst().toString(true)));
 		}
 	}
 
@@ -87,7 +89,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		public ReserviorSampler(int n)
 		{
 			// with default precision = 100
-			this(n, 50);
+			this(n, 100);
 		}
 
 
@@ -122,7 +124,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		public boolean sample(String w, Object value)
 		{
 			final Apint intWeight = new Apint(w);
-			final Apfloat floatWeight = new Apfloat(w);//, precision);
+			final Apfloat floatWeight = new Apfloat(w);// , precision);
 
 			if (reservior.size() < nSample) // if the reservoir is not full
 			{
@@ -164,25 +166,51 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 
 				if (accumulation.compareTo(Xw) >= 0) // no skip
 				{
-					// TODO: is it a workaround for the problem in ApfloatMath.pow?
+					// TODO: is it a workaround for the problem in
+					// ApfloatMath.pow?
 					Apfloat min = reservior.poll().getFirst(); // delete the
 																// minimum
 																// System.out.println("min: "
 																// +
 																// min.toString(true));
 					// TODO: ApfloatMath.pow is problematic
-//					System.out.println("min: " + min.toString(true) +"\tp: "+min.precision());
-//					System.out.println("floatweight: " + floatWeight.toString(true) +"\tp: "+floatWeight.precision());
+					// System.out.println("min: " + min.toString(true)
+					// +"\tp: "+min.precision());
+					// System.out.println("floatweight: " +
+					// floatWeight.toString(true)
+					// +"\tp: "+floatWeight.precision());
 					Apfloat tw = null;
-					try{
+					try
+					{
+						// taylor expanasion, (1-x)^n ~ 1-nx+O(x^2)
+//						Apfloat x = new Apfloat("1", Apfloat.INFINITE).subtract(min);
+//						Apfloat nx = x.multiply(floatWeight);
+//						Apfloat level2 = floatWeight
+//										.subtract(new Apfloat("1", Apfloat.INFINITE))
+//										.multiply(floatWeight)
+//										.multiply(ApfloatMath.pow(x, 2))
+//										.divide(new Apfloat("2", precision));
+
+//						tw = new Apfloat("1", Apfloat.INFINITE).subtract(nx).add(level2);
+
+//						System.out.println("x:  " + x.toString(true));
+//						System.out.println("fl: " + floatWeight.toString(true));
+//						System.out.println("nx: " + nx.toString(true));
+//						System.out.println("l2: " + level2.toString(true));
+//						System.out.println("tw: " + tw.toString(true));
+
 						tw = ApfloatMath.pow(min, floatWeight).precision(precision);
 					}
 					catch (ArithmeticException e)
 					{
-//						System.err.println("min\t\t (" + min.precision() + "): " + min.toString(true));
-//						System.err.println("floatWeight\t (" + floatWeight.precision() + "): " + floatWeight.toString(true));
-//						System.err.println(e.getMessage());
+						// System.err.println("min\t\t (" + min.precision() +
+						// "): " + min.toString(true));
+						// System.err.println("floatWeight\t (" +
+						// floatWeight.precision() + "): " +
+						// floatWeight.toString(true));
+						// System.err.println(e.getMessage());
 						// FIXME: not true!!!
+
 						throw e;
 					}
 
@@ -195,11 +223,11 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 					// therefore random.nextDouble < tw holds forever...
 					// leads to the for-loop below infinite.
 					Apfloat exp = Apfloat.ONE.divide(floatWeight);
-					
+
 					Apfloat key = ApfloatMath.pow(r2, exp).precision(precision);
 
 					reservior.add(new Pair<Apfloat, Object>(key, value));
-					
+
 					startjump = true;
 					return true;
 				}
