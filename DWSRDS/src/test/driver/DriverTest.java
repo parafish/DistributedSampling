@@ -13,16 +13,16 @@ public class DriverTest
 {
 
 	@Test
-	public void testLocal() throws Exception
+	public static void testLocal() throws Exception
 	{
 		Configuration conf = PARAMETERS.getLocalConf();
 
-		Path input = new Path("/home/zheyi/sampling/data/webdocs.dat");
+		Path input = new Path("/home/zheyi/sampling/data/test.dat");
 //		Path input = new Path("/home/zheyi/Downloads/test2.dat");
 		Path input2 = new Path("/home/zheyi/sampling/data/chess.dat");
 		Path output = PARAMETERS.localOutputPath;
 		
-		String nSamples = "50";
+		String nSamples = "100000";
 		String distribution  = "1";
 
 		FileSystem fs = FileSystem.get(conf);
@@ -33,5 +33,10 @@ public class DriverTest
 						output.toString(), nSamples, distribution});
 
 		System.exit(exitCode);
+	}
+	
+	public static void main(String args[]) throws Exception
+	{
+		testLocal();
 	}
 }

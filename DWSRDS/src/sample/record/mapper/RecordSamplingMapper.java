@@ -16,15 +16,13 @@ import org.apfloat.Apint;
 
 import rng.RNG;
 import setting.PARAMETERS;
-import setting.PARAMETERS.SeminarCounters;
 
 public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritable, Text>
 {
 	private int nSamples = 0;
 
-	// instances of algorithms
-	List<ReserviorSampler> instances;
-
+	// instances of A-RES
+	private List<ReserviorSampler> instances;
 
 	@Override
 	public void setup(Context context)
@@ -50,15 +48,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		// scan n reservoirs
 		for (ReserviorSampler sampler : instances)
 		{
-			try
-			{
-				sampler.sample(weight, index);
-			}
-			catch (ArithmeticException e)
-			{
-				context.getCounter(SeminarCounters.MALFORMED).increment(1);
-				e.printStackTrace();
-			}
+			sampler.sample(weight, index);
 		}
 	}
 
@@ -68,8 +58,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 	{
 		for (ReserviorSampler sampler : instances)
 		{
-			Pair<Apfloat, Object> pair = sampler.getReservior().peek();
-
+			Pair<Apfloat, Object> pair = sampler.getReservior().poll();
 			context.write(NullWritable.get(), new Text(pair.getSecond() + PARAMETERS.SepIndexWeight
 							+ pair.getFirst().toString(true)));
 		}
@@ -89,7 +78,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		public ReserviorSampler(int n)
 		{
 			// with default precision = 100
-			this(n, 100);
+			this(n, 60);
 		}
 
 

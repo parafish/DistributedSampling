@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -18,7 +17,6 @@ public class SquaredFreqSamplingMapper extends AbstractPatternMapper
 	public void map(NullWritable key, Text value, Context context) throws IOException,
 					InterruptedException
 	{
-		FileSystem fs = FileSystem.get(context.getConfiguration());
 		Path inputfilepath = new Path(context.getConfiguration().get(PARAMETERS.LEFT_PATH));
 
 		String index1 = value.toString().split(PARAMETERS.SepIndexes)[0];
@@ -36,13 +34,8 @@ public class SquaredFreqSamplingMapper extends AbstractPatternMapper
 		List<String> pattern = sampleUniformly(intersect);
 
 		if (pattern.size() == 0) return;
-		
-		StringBuilder builder = new StringBuilder();
-		for (String s : pattern)
-			builder.append(s).append(" ");
-		builder.deleteCharAt(builder.lastIndexOf(" "));
 
-		context.write(NullWritable.get(), new Text(builder.toString()));
+		context.write(NullWritable.get(), new Text(composePattern(pattern)));
 
 	}
 }

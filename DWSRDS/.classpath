@@ -61,6 +61,11 @@
 	<classpathentry kind="lib" path="/home/zheyi/hadoop-0.22.0/hadoop-mapred-0.22.0.jar" sourcepath="/home/zheyi/hadoop-0.22.0/hadoop-mapred-0.22.0-sources.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="/home/zheyi/hadoop-0.22.0/contrib/mrunit/hadoop-0.22.0-mrunit.jar"/>
-	<classpathentry kind="lib" path="/home/zheyi/apifloat/lib/apfloat.jar" sourcepath="/home/zheyi/apifloat/source"/>
+	<classpathentry kind="lib" path="/home/zheyi/.local/lib/apfloat.jar"/>
+	<classpathentry kind="lib" path="/home/zheyi/.local/lib/commons-math3-3.1.1/commons-math3-3.1.1.jar" sourcepath="/home/zheyi/.local/lib/commons-math3-3.1.1/commons-math3-3.1.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/home/zheyi/.local/lib/commons-math3-3.1.1/commons-math3-3.1.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

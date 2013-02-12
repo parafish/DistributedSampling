@@ -13,7 +13,7 @@ import pre.mapper.single.FreqMapper;
 
 public class PreMapperTest
 {
-	private Text record = new Text("2 3 4 5 6");
+	private Text record = new Text("2 3 4 5 6 7");
 	private Text pairRecords = new Text("1 2 3 4,2 3 4 5");
 	
 	@Test
@@ -22,7 +22,7 @@ public class PreMapperTest
 		new MapDriver<Object, Text, NullWritable, Text>()
 			.withMapper(new FreqMapper())
 			.withInput(new LongWritable(100000000000000L), record)
-			.withOutput(NullWritable.get(), new Text("100000000000000 32"))
+			.withOutput(NullWritable.get(), new Text("100000000000000 64"))
 			.runTest();
 	}
 	
@@ -32,7 +32,7 @@ public class PreMapperTest
 		new MapDriver<Object, Text, NullWritable, Text>()
 			.withMapper(new AreaFreqMapper())
 			.withInput(new LongWritable(0), record)
-			.withOutput(NullWritable.get(), new Text("0 80"))
+			.withOutput(NullWritable.get(), new Text("0 192"))
 			.runTest();
 	}
 	
