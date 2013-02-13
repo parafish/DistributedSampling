@@ -1,9 +1,7 @@
 package test.sample.record;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
@@ -18,7 +16,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import sample.record.mapper.RecordSamplingMapper;
-import sample.record.mapper.RecordSamplingMapper.ReserviorSampler;
+import sample.record.mapper.RecordSamplingMapper.ReserviorOneSampler;
 import sample.record.reducer.RecordSamplingReducer;
 import setting.PARAMETERS;
 
@@ -58,70 +56,70 @@ public class RecordSamplingTest
 
 
 	@Test
-	public void testReplacement()
+	public static void testReplacement()
 	{
 		Random random = new Random();
-		int nPopulation = 100;
+		int nPopulation = 10;
 		int nSample = 10;
 		List<Pair<Apfloat, String>> population = new ArrayList<Pair<Apfloat, String>>();
 
-		List<ReserviorSampler> instances = new ArrayList<RecordSamplingMapper.ReserviorSampler>(
+		List<ReserviorOneSampler> instances = new ArrayList<ReserviorOneSampler>(
 						nSample);
 		for (int i = 0; i < nSample; i++)
-			instances.add(new ReserviorSampler(1));
+			instances.add(new ReserviorOneSampler());
 
-		for (int i = 1; i <= nPopulation; i++)
+		for (int i = 7; i <= nPopulation; i++)
 		{
-			population.add(new Pair<Apfloat, String>(new Apint(new BigInteger("2").pow(random.nextInt(i))), String.valueOf(i)));
+			population.add(new Pair<Apfloat, String>(new Apint(i), String.valueOf(i)));
 		}
 
 		for (Pair<Apfloat, String> pair : population)
 		{
-			for (ReserviorSampler sampler : instances)
+			for (ReserviorOneSampler sampler : instances)
 				sampler.sample(pair.getFirst().toString(), pair.getSecond());
 		}
 
-		for (ReserviorSampler sampler : instances)
+		for (ReserviorOneSampler sampler : instances)
 		{
-			PriorityQueue<Pair<Apfloat, Object>> queue = sampler.getReservior();
-			System.out.println(queue.peek().getSecond().toString() + ":\t"
-							+ queue.peek().getFirst().toString(true));
+			System.out.println(sampler.getValue().toString() + ":\t" + sampler.getKey());
 		}
 	}
 
 
-	@Test
-	public void testReservoirSamper()
-	{
-		Random random = new Random();
-		int nPopulation = 200;
-		int nSample = 10;
-		List<Pair<Apint, String>> population = new ArrayList<Pair<Apint, String>>();
-		ReserviorSampler sampler = new ReserviorSampler(nSample);
-
-		for (int i = 1; i <= nPopulation; i++)
-		{
-			population.add(new Pair<Apint, String>(new Apint(new BigInteger("2").pow(random.nextInt(i))),
-							String.valueOf(i)));
-		}
-		int i = 0;
-		for (Pair<Apint, String> pair : population)
-		{
-			sampler.sample(pair.getFirst().toString(true), pair.getSecond());
-			i++;
-		}
-		
-		System.out.println("Done. size: " + sampler.getReservior().size());
-		for (Pair<Apfloat, Object> pair : sampler.getReservior())
-		{
-			System.out.println(pair.getSecond().toString() + "(" + pair.getFirst().precision()
-							+ "):\t" + pair.getFirst().toString(true));
-		}
-	}
-
+	// @Test
+	// public void testReservoirSamper()
+	// {
+	// Random random = new Random();
+	// int nPopulation = 200;
+	// int nSample = 10;
+	// List<Pair<Apint, String>> population = new ArrayList<Pair<Apint,
+	// String>>();
+	// ReserviorOneSampler sampler = new ReserviorOneSampler(nSample);
+	//
+	// for (int i = 1; i <= nPopulation; i++)
+	// {
+	// population.add(new Pair<Apint, String>(new Apint(new
+	// BigInteger("2").pow(random.nextInt(i))),
+	// String.valueOf(i)));
+	// }
+	// int i = 0;
+	// for (Pair<Apint, String> pair : population)
+	// {
+	// sampler.sample(pair.getFirst().toString(true), pair.getSecond());
+	// i++;
+	// }
+	//
+	// System.out.println("Done. size: " + sampler.getReservior().size());
+	// for (Pair<Apfloat, Object> pair : sampler.getReservior())
+	// {
+	// System.out.println(pair.getSecond().toString() + "(" +
+	// pair.getFirst().precision()
+	// + "):\t" + pair.getFirst().toString(true));
+	// }
+	// }
 
 	public static void main(String[] args)
 	{
-		new RecordSamplingTest().testReservoirSamper();
+		testReplacement();
 	}
 }
