@@ -18,6 +18,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 {
 	private int nSamples = 0;
 
+	private long counter = 0;
 	// instances of A-RES
 	private List<ReserviorOneSampler> instances;
 
@@ -42,8 +43,15 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		String index = indexweight[0];
 		String weight = indexweight[1];
 
+//		int innerCounter = 0;
 		for (ReserviorOneSampler sampler : instances)
+		{
+//			if (++innerCounter % 1000 == 0)
+//				System.out.println(innerCounter + " / " + nSamples);
 			sampler.sample(weight, index);
+		}
+		if (++counter % 1000 == 0)
+		System.out.println("counter: " + counter);
 	}
 
 
@@ -121,7 +129,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 				Apfloat floatWeight = new Apfloat(w);
 //				printPrecision("fw", floatWeight);
 
-				Apfloat r = new Apfloat(String.valueOf(random.nextDouble()));
+				Apfloat r = random.nextApfloat(precision);
 //				printPrecision("r", r);
 				
 				Apfloat exp  = helper.divide(Apfloat.ONE, floatWeight);
@@ -141,15 +149,10 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 				
 				if (startjump)
 				{
-					double r;
-					for (r = random.nextDouble(); (r == 0.0d) || (r == 1.0d); r = random
-									.nextDouble());
-
-					Apfloat rand = new Apfloat(String.valueOf(r));
-//					printPrecision("rand", rand);
+					Apfloat r = random.nextApfloat(precision);
 					
 //					printPrecision("key", key);
-					Xw = helper.log(rand, key);
+					Xw = helper.log(r, key);
 //					printPrecision("Xw", Xw);
 					
 					accumulation = Apint.ZERO;
@@ -166,10 +169,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 					Apfloat tw = helper.pow(key, floatWeight);
 //					printPrecision("tw", tw);
 
-					Apfloat r = new Apfloat(String.valueOf(random.nextDouble()));
-//					printPrecision("r", r);
-					
-					Apfloat r2 = Apfloat.ONE.subtract(tw).multiply(r).add(tw);
+					Apfloat r2 = random.nextApfloat(tw, Apfloat.ONE, helper);
 //					printPrecision("r2", r2);
 					
 					Apfloat exp = helper.divide(Apfloat.ONE, floatWeight);
@@ -195,7 +195,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 			Apfloat key = helper.pow(x, y);
 			while (key.compareTo(Apfloat.ONE) == 0)
 			{
-				precision ++;
+				precision += 5;
 				helper = new FixedPrecisionApfloatHelper(precision);
 				key = helper.pow(x, y);
 			}
