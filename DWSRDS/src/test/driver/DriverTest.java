@@ -16,12 +16,12 @@ public class DriverTest
 	{
 		Configuration conf = PARAMETERS.getLocalConf();
 
-		Path input = new Path("/home/zheyi/sampling/data/kosarak.dat");
+		Path input = new Path("/home/zheyi/sampling/data/webdocs.dat");
 //		Path input = new Path("/home/zheyi/Downloads/test2.dat");
 		Path input2 = new Path("/home/zheyi/sampling/data/chess.dat");
 		Path output = PARAMETERS.localOutputPath;
 		
-		String nSamples = "5";
+		String nSamples = "1";
 		String distribution  = "1";
 
 		FileSystem fs = FileSystem.get(conf);

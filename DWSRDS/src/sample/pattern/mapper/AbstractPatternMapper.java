@@ -52,7 +52,7 @@ public class AbstractPatternMapper extends Mapper<NullWritable, Text, NullWritab
 	protected <T> List<T> sampleUniformly(List<T> items)
 	{
 		ArrayList<T> pattern = new ArrayList<T>();
-		while (pattern.size() <= 1)
+		while (pattern.size() < 2)
 		{
 			pattern.clear();
 			for (T t : items)

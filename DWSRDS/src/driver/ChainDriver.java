@@ -77,6 +77,7 @@ public class ChainDriver extends Configured implements Tool
 
 		job.setJarByClass(getClass());
 
+		job.getConfiguration().set(PARAMETERS.MAX_LENGTH, "1000");
 		job.getConfiguration().set(PARAMETERS.N_SAMPLES, nSamples);
 		job.getConfiguration().set(PARAMETERS.LEFT_PATH, input.toString());
 

@@ -8,6 +8,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apfloat.Apfloat;
+import org.apfloat.ApfloatMath;
 import org.apfloat.Apint;
 import org.apfloat.FixedPrecisionApfloatHelper;
 
@@ -18,10 +19,8 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 {
 	private int nSamples = 0;
 
-	private long counter = 0;
 	// instances of A-RES
 	private List<ReserviorOneSampler> instances;
-
 
 	@Override
 	public void setup(Context context)
@@ -46,12 +45,8 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 //		int innerCounter = 0;
 		for (ReserviorOneSampler sampler : instances)
 		{
-//			if (++innerCounter % 1000 == 0)
-//				System.out.println(innerCounter + " / " + nSamples);
 			sampler.sample(weight, index);
 		}
-		if (++counter % 1000 == 0)
-		System.out.println("counter: " + counter);
 	}
 
 
@@ -67,6 +62,7 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 
 			context.write(NullWritable.get(), new Text(output.toString()));
 		}
+//		System.out.println("Precision: " + ReserviorOneSampler.getPrecision());
 	}
 
 	public static class ReserviorOneSampler
@@ -79,16 +75,16 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		private Apint accumulation;
 		private Apfloat Xw;
 		
-		private int precision;
-		FixedPrecisionApfloatHelper helper;
+		private static int precision;
+		private static FixedPrecisionApfloatHelper helper;
 
-		final static private int defaultPrecision = 10;
+		final static private int defaultPrecision = 20;
+		final static private int maximumPrecision = 100;
 
 		public ReserviorOneSampler()
 		{
 			this(defaultPrecision);
 		}
-
 
 		// main constructor
 		private ReserviorOneSampler(int p)
@@ -106,6 +102,11 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		}
 
 
+		public static int getPrecision()
+		{
+			return precision;
+		}
+		
 		public String getKey()
 		{
 			printPrecision("key", key);
@@ -128,33 +129,25 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 			{
 				Apfloat floatWeight = new Apfloat(w);
 //				printPrecision("fw", floatWeight);
-
 				Apfloat r = random.nextApfloat(precision);
 //				printPrecision("r", r);
-				
 				Apfloat exp  = helper.divide(Apfloat.ONE, floatWeight);
 //				printPrecision("exp", exp);
-				
 //				key = helper.pow(r, exp);
 				key = pow(r, exp);
 //				printPrecision("key", key);
-				
 				item = value;
-
 				return true;
 			}
 			else
 			// if the reservoir is exhausted
 			{
-				
 				if (startjump)
 				{
 					Apfloat r = random.nextApfloat(precision);
-					
 //					printPrecision("key", key);
 					Xw = helper.log(r, key);
 //					printPrecision("Xw", Xw);
-					
 					accumulation = Apint.ZERO;
 					startjump = false;
 				}
@@ -165,22 +158,16 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 				if (accumulation.compareTo(Xw) >= 0) // no skip
 				{
 					Apfloat floatWeight = new Apfloat(w);
-
 					Apfloat tw = helper.pow(key, floatWeight);
 //					printPrecision("tw", tw);
-
 					Apfloat r2 = random.nextApfloat(tw, Apfloat.ONE, helper);
 //					printPrecision("r2", r2);
-					
 					Apfloat exp = helper.divide(Apfloat.ONE, floatWeight);
 //					printPrecision("exp", exp);
-
 //					key = helper.pow(r2, exp);
 					key = pow(r2, exp);
 //					printPrecision("key", key);
-					
 					item = value;
-
 					startjump = true;
 					return true;
 				}
@@ -195,6 +182,12 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 			Apfloat key = helper.pow(x, y);
 			while (key.compareTo(Apfloat.ONE) == 0)
 			{
+				if (precision == maximumPrecision)
+				{
+					key = Apfloat.ONE.subtract(ApfloatMath.pow(new Apfloat("0.1"), precision));
+					break;
+				}
+				
 				precision += 5;
 				helper = new FixedPrecisionApfloatHelper(precision);
 				key = helper.pow(x, y);

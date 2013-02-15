@@ -15,6 +15,7 @@ public class PARAMETERS
 	public static final String LEFT_PATH = "dist.left.path";
 	public static final String RIGHT_PATH = "dist.right.path";
 	public static final String N_SAMPLES = "dist.sample.size";
+	public static final String MAX_LENGTH = "dist.record.max";
 	
 	// separators
 	public final static String SepItems = " ";

@@ -12,5 +12,11 @@ import org.apache.hadoop.mapreduce.Mapper;
  */
 public class PreMapper extends Mapper<Object, Text, NullWritable, Text>
 {
-	// nothing 
+//	protected int maxlength;
+//	
+//	@Override
+//	public void setup(Context context)
+//	{
+//		maxlength = context.getConfiguration().getInt(PARAMETERS.MAX_LENGTH, 100);
+//	}
 }
