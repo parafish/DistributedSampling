@@ -42,7 +42,6 @@ public class RecordSamplingMapper extends Mapper<NullWritable, Text, NullWritabl
 		String index = indexweight[0];
 		String weight = indexweight[1];
 
-//		int innerCounter = 0;
 		for (ReserviorOneSampler sampler : instances)
 		{
 			sampler.sample(weight, index);
