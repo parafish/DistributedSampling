@@ -16,27 +16,38 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 
-import util.PARAMETERS;
+import util.Parameters;
 import util.RNG;
 
 
-public abstract class AbstractPatternMapper extends MapReduceBase implements Mapper<NullWritable, Text, NullWritable, Text>
+/**
+ * Reads a record from the input file(s), where the record is located at
+ * <code>value</code>; then samples a pattern from the record.
+ * <p>
+ * The distribution is implemented in a subclass.
+ * 
+ * @author zheyi
+ * 
+ */
+public abstract class AbstractPatternMapper extends MapReduceBase implements
+				Mapper<NullWritable, Text, NullWritable, Text>
 {
 	// Filesystem, to get the file
-	protected FileSystem fs = null;
+	protected FileSystem	fs			= null;
 	// random number generator
-	protected RNG  rng = new RNG();
+	protected RNG			rng			= new RNG();
 	// left path
-	protected String leftPath = null;
+	protected String		leftPath	= null;
 	// right path
-	protected String rightPath = null;
+	protected String		rightPath	= null;
+
 
 	@Override
 	public void configure(JobConf jobConf)
 	{
-		leftPath = jobConf.get(PARAMETERS.LEFT_PATH);
-		rightPath = jobConf.get(PARAMETERS.RIGHT_PATH);
-		
+		leftPath = jobConf.get(Parameters.LEFT_PATH);
+		rightPath = jobConf.get(Parameters.RIGHT_PATH);
+
 		try
 		{
 			fs = FileSystem.get(jobConf);
@@ -47,12 +58,21 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements Map
 		}
 	}
 
-
-	// fs - path - offset, return a record (line)
+	/**
+	 * Reads a record from the given filesystem/inputPath/offset.
+	 * 
+	 * @param fs
+	 *            The filesystem
+	 * @param input
+	 *            The inputPath
+	 * @param offset
+	 *            The offset of the first character of this record.
+	 * @return The desired record
+	 * @throws IOException
+	 */
 	protected String readRecord(FileSystem fs, Path input, long offset) throws IOException
 	{
-		// find the file
-		FSDataInputStream in = fs.open(input);
+		FSDataInputStream in = fs.open(input); // find the file
 		in.seek(offset);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -64,7 +84,14 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements Map
 	}
 
 
-	// uniformly sample from a record, pattern >= 1
+	/**
+	 * Uniformly samples a pattern from a record. The pattern size should be
+	 * greater than 1, if the record has more than 1 items.
+	 * 
+	 * @param items
+	 *            the record, represented in a list of items
+	 * @return the sampled pattern
+	 */
 	protected <T> List<T> sampleUniformly(List<T> items)
 	{
 		ArrayList<T> pattern = new ArrayList<T>();
@@ -73,7 +100,7 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements Map
 			pattern.addAll(items);
 			return pattern;
 		}
-		
+
 		while (pattern.size() < 2)
 		{
 			pattern.clear();
@@ -84,6 +111,13 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements Map
 	}
 
 
+	/**
+	 * Composes a set of items to a string, separated by space. Used for output.
+	 * 
+	 * @param pattern
+	 *            a set of items
+	 * @return a string containing the items
+	 */
 	protected String composePattern(Collection<String> pattern)
 	{
 		StringBuilder builder = new StringBuilder();

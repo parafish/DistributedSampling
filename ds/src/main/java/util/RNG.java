@@ -36,11 +36,23 @@ public class RNG
 	}
 	
 	// XXX: no protection on 0 and 1
+	/**
+	 * Gives a random number between 0 and 1, with a given precision
+	 * @param precision 
+	 * @return
+	 */
 	public Apfloat nextApfloat(long precision)
 	{
 		return new Apfloat(String.valueOf(rng.nextDouble()), precision);
 	}
 	
+	/**
+	 * gives a random number within a given range.
+	 * @param start
+	 * @param end
+	 * @param helper
+	 * @return
+	 */
 	public Apfloat nextApfloat(Apfloat start, Apfloat end, FixedPrecisionApfloatHelper helper)
 	{
 		if (end.compareTo(start) < 0) 

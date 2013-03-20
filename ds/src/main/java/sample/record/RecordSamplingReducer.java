@@ -15,9 +15,13 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mrunit.types.Pair;
 import org.apfloat.Apfloat;
 
-import util.PARAMETERS;
+import util.Parameters;
 
-
+/**
+ * Selects k pairs from the incoming stream, with top k keys.
+ * @author zheyi
+ *
+ */
 public class RecordSamplingReducer extends MapReduceBase implements Reducer<NullWritable, Text, NullWritable, Text>
 {
 	private int										nSamples	= 0;
@@ -31,7 +35,7 @@ public class RecordSamplingReducer extends MapReduceBase implements Reducer<Null
 	public void configure(JobConf jobConf)
 	{
 		// get the number of samples
-		nSamples = Integer.parseInt(jobConf.get(PARAMETERS.N_SAMPLES));
+		nSamples = Integer.parseInt(jobConf.get(Parameters.N_SAMPLES));
 
 		sample = new PriorityQueue<Pair<Apfloat, String>>(nSamples, new Comparator<Pair<Apfloat, String>>()
 		{
@@ -59,7 +63,7 @@ public class RecordSamplingReducer extends MapReduceBase implements Reducer<Null
 		{
 			Text value = values.next();
 
-			String[] indexweight = value.toString().split(PARAMETERS.SepIndexWeight);
+			String[] indexweight = value.toString().split(Parameters.SepIndexWeight);
 			String index = indexweight[0];
 			Apfloat weight = new Apfloat(indexweight[1]);
 

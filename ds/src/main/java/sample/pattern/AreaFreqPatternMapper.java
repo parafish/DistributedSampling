@@ -11,7 +11,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.PARAMETERS;
+import util.Parameters;
 
 
 public class AreaFreqPatternMapper extends AbstractPatternMapper
@@ -56,10 +56,10 @@ public class AreaFreqPatternMapper extends AbstractPatternMapper
 	public void map(NullWritable key, Text value, OutputCollector<NullWritable, Text> output, Reporter reporter)
 					throws IOException
 	{
-		Path inputfilepath = new Path(PARAMETERS.LEFT_PATH);
+		Path inputfilepath = new Path(leftPath);
 		long offset = Long.parseLong(value.toString());
 
-		String[] record = readRecord(fs, inputfilepath, offset).split(PARAMETERS.SepItems);
+		String[] record = readRecord(fs, inputfilepath, offset).split(Parameters.SepItems);
 
 		List<String> pattern = sampleWeighted(Arrays.asList(record));
 

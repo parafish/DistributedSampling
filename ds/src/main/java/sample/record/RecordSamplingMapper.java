@@ -17,22 +17,35 @@ import org.apfloat.ApfloatMath;
 import org.apfloat.Apint;
 import org.apfloat.FixedPrecisionApfloatHelper;
 
-import util.PARAMETERS;
+import util.Parameters;
 import util.RNG;
 
 
+/**
+ * Samples from a stream using reservoir sampling.
+ * <p>
+ * If <em>k</em> samples are needed, there will be <em>k</em> instances of the
+ * reservoir sampling algorithm, each of which maintains a reservoir of size 1.
+ * 
+ * @author zheyi
+ * 
+ */
 public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writable, Text, NullWritable, Text>
 {
 	// instances of A-RES
 	private List<ReserviorOneSampler>			instances	= null;
-	// outputcollector
+	// output collector
 	private OutputCollector<NullWritable, Text>	output		= null;
 
+
+	/**
+	 * Initialized <code>N_SAMPLES</code> instances of the reservoir sampling algorithm
+	 */
 	@Override
 	public void configure(JobConf jobConf)
 	{
 		// get the number of samples
-		int nSamples = Integer.parseInt(jobConf.get(PARAMETERS.N_SAMPLES));
+		int nSamples = Integer.parseInt(jobConf.get(Parameters.N_SAMPLES));
 		instances = new ArrayList<ReserviorOneSampler>(nSamples);
 
 		for (int i = 0; i < nSamples; i++)
@@ -40,6 +53,10 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	}
 
 
+	/**
+	 * Decides if an incoming key/value pair should be sampled. The <code>value</code> is the 
+	 * the weight, in integer.
+	 */
 	@Override
 	public void map(Writable key, Text value, OutputCollector<NullWritable, Text> output, Reporter reporter)
 	{
@@ -50,77 +67,88 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	}
 
 
+	/**
+	 * Emits the sampled key/value pairs.
+	 */
 	@Override
 	public void close() throws IOException
 	{
 		for (ReserviorOneSampler sampler : instances)
 		{
 			StringBuilder output = new StringBuilder();
-			output.append(sampler.getItem().toString()).append(PARAMETERS.SepIndexWeight).append(sampler.getKey());
+			output.append(sampler.getItem().toString()).append(Parameters.SepIndexWeight).append(sampler.getKey());
 
-//			System.out.println(output.toString());
 			this.output.collect(NullWritable.get(), new Text(output.toString()));
 		}
 	}
 
 
-	// package private
+	/**
+	 * 
+	 * @author zheyi
+	 * 
+	 */
 	static class ReserviorOneSampler
 	{
-		private Apfloat								key;
-		private Object								item;
+		private Apfloat								key					= null;
+		private Object								item				= null;
 
-		private final RNG							random;
-		private boolean								startjump;
-		private Apint								accumulation;
-		private Apfloat								Xw;
+		private final RNG							random				= new RNG();
+		private boolean								startjump			= true;
+		private Apint								accumulation		= Apint.ZERO;
+		private Apfloat								Xw					= Apfloat.ZERO;
 
 		private static int							precision;
 		private static FixedPrecisionApfloatHelper	helper;
 
-		private	final static  int					defaultPrecision	= 20;
-		private	final static  int					maximumPrecision	= 100;
+		public final static int					defaultPrecision	= 20;
+		public final static int					maximumPrecision	= 100;
 
 
+		/**
+		 * Constructs a reservoir sampling algorithm instance with the default
+		 * precision
+		 */
 		public ReserviorOneSampler()
 		{
 			this(defaultPrecision);
 		}
 
 
-		// main constructor
-		private ReserviorOneSampler(int p)
+		/**
+		 * Initializes the reservoir sampling algorithm with an initial
+		 * precision This precision will be increased if needed.
+		 * 
+		 * @param p
+		 *            the initial precision
+		 */
+		public ReserviorOneSampler(int p)
 		{
 			precision = p;
 			helper = new FixedPrecisionApfloatHelper(precision);
-
-			key = null; // minimum value
-			item = null; //
-
-			random = new RNG();
-			accumulation = Apint.ZERO;
-			Xw = Apfloat.ZERO;
-			startjump = true;
 		}
 
 
-		// true if sampled, false otherwise
-		public boolean sample(String w, Object value)
+		/**
+		 * Decides if an item would be sampled with its weight.
+		 * <p>
+		 * 
+		 * @param w
+		 *            the weight of this item. should be an integer represented
+		 *            in <code>String</code>.
+		 * @param obj
+		 *            the item to decide
+		 * @return if the item was sampled
+		 */
+		public boolean sample(String w, Object obj)
 		{
-			final Apint intWeight = new Apint(w); // used in summing up
-
 			if (key == null) // if the reservoir is not full
 			{
 				Apfloat floatWeight = new Apfloat(w);
-				// printPrecision("fw", floatWeight);
 				Apfloat r = random.nextApfloat(precision);
-				// printPrecision("r", r);
 				Apfloat exp = helper.divide(Apfloat.ONE, floatWeight);
-				// printPrecision("exp", exp);
-				// key = helper.pow(r, exp);
 				key = pow(r, exp);
-				// printPrecision("key", key);
-				item = value;
+				item = obj;
 				return true;
 			}
 			else
@@ -129,39 +157,41 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 				if (startjump)
 				{
 					Apfloat r = random.nextApfloat(precision);
-					// printPrecision("key", key);
 					Xw = helper.log(r, key);
-					// printPrecision("Xw", Xw);
 					accumulation = Apint.ZERO;
 					startjump = false;
 				}
 
 				// if skipped
-				accumulation = accumulation.add(intWeight);
+				accumulation = accumulation.add(new Apint(w));
 
 				if (accumulation.compareTo(Xw) >= 0) // no skip
 				{
 					Apfloat floatWeight = new Apfloat(w);
 					Apfloat tw = helper.pow(key, floatWeight);
-					// printPrecision("tw", tw);
 					Apfloat r2 = random.nextApfloat(tw, Apfloat.ONE, helper);
-					// printPrecision("r2", r2);
 					Apfloat exp = helper.divide(Apfloat.ONE, floatWeight);
-					// printPrecision("exp", exp);
-					// key = helper.pow(r2, exp);
 					key = pow(r2, exp);
-					// printPrecision("key", key);
-					item = value;
+					item = obj;
 					startjump = true;
 					return true;
 				}
 
-				// skip
-				return false;
+				return false; // skip
 			}
 		}
 
 
+		/**
+		 * Calculates the power x^y. If the precision is not enough, it will be increased
+		 * until reaching the maximum. If it reaches the maximum, a closest float will be returned.
+		 * <p>For example, x^y = 0.9999995, but the precision now is 5, so under this precision
+		 * x^y would be 1. We can increase the precision by 5, so the right answer will be returned.
+		 * However, if the maximum precision is 5, 0.99999 will be returned.
+		 * @param x
+		 * @param y
+		 * @return
+		 */
 		private Apfloat pow(Apfloat x, Apfloat y)
 		{
 			Apfloat key = helper.pow(x, y);
@@ -174,7 +204,10 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 				}
 
 				precision += 5;
-				helper = new FixedPrecisionApfloatHelper(precision);
+				synchronized (this.helper)
+				{
+					helper = new FixedPrecisionApfloatHelper(precision);	
+				}
 				key = helper.pow(x, y);
 			}
 			return key;
@@ -189,7 +222,6 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 
 		public String getKey()
 		{
-			// printPrecision("key", key);
 			return key.toString(true);
 		}
 
@@ -204,42 +236,5 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 		{
 			System.out.println(name + "\t" + f.precision() + "\t" + f.toString(true));
 		}
-	}
-
-
-	public static void main(String[] args)
-	{
-		// Apfloat apfloat = new Apfloat("0.123456789");
-		// ReserviorOneSampler.printPrecision("test", apfloat);
-		// ReserviorOneSampler.printPrecision("test",
-		// Apfloat.ONE.subtract(apfloat));
-		// ReserviorOneSampler.printPrecision("test",
-		// Apfloat.ONE.divide(apfloat));
-		// ReserviorOneSampler.printPrecision("test",
-		// Apfloat.ONE.divide(apfloat.precision(5)));
-		System.exit(0);
-
-		int nPopulation = 10;
-		int nSample = 10;
-
-		// initialize instances
-		List<ReserviorOneSampler> instances = new ArrayList<ReserviorOneSampler>(nSample);
-		for (int i = 0; i < nSample; i++)
-			instances.add(new ReserviorOneSampler());
-
-		// sample, while generating
-		for (int i = 3; i <= nPopulation; i++)
-		{
-			// generate
-			String key = String.valueOf(i);
-			String value = String.valueOf(i);
-
-			// sample
-			for (ReserviorOneSampler sampler : instances)
-				sampler.sample(key, value);
-		}
-
-		for (ReserviorOneSampler sampler : instances)
-			System.out.println(sampler.getItem().toString() + ":\t" + sampler.getKey());
 	}
 }

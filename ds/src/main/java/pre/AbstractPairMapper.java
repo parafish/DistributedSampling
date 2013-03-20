@@ -8,7 +8,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.PARAMETERS;
+import util.Parameters;
 
 /**
  * Maps indices/records to indices/weights. <p>
@@ -36,10 +36,10 @@ public abstract class AbstractPairMapper extends AbstractPreMapper
 	
 	public void map(Writable key, Text value, OutputCollector<Writable, Text> output, Reporter reporter) throws IOException
 	{
-		String[] records = value.toString().split(PARAMETERS.SepRecords);
+		String[] records = value.toString().split(Parameters.SepRecords);
 
-		BigInteger weight = calcWeight(records[0].split(PARAMETERS.SepItems),
-						records[1].split(PARAMETERS.SepItems));
+		BigInteger weight = calcWeight(records[0].split(Parameters.SepItems),
+						records[1].split(Parameters.SepItems));
 
 		output.collect(key, new Text(weight.toString()));
 	}

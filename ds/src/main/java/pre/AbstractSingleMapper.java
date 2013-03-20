@@ -8,7 +8,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.PARAMETERS;
+import util.Parameters;
 
 
 /**
@@ -31,7 +31,7 @@ public abstract class AbstractSingleMapper extends AbstractPreMapper
 	public void map(Writable key, Text value, OutputCollector<Writable, Text> output,
 					Reporter reporter) throws IOException
 	{
-		String[] items = value.toString().split(PARAMETERS.SepItems);		
+		String[] items = value.toString().split(Parameters.SepItems);		
 		output.collect(key, new Text(calcWeight(items).toString()));
 	}
 }

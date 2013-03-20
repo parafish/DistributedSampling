@@ -13,7 +13,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.PARAMETERS;
+import util.Parameters;
 
 public class DiscriminativityPatternMapper extends AbstractPatternMapper
 {
@@ -26,15 +26,15 @@ public class DiscriminativityPatternMapper extends AbstractPatternMapper
 		Path input1 = new Path(leftPath);		
 		Path input2 = new Path(rightPath);
 		
-		String[] indices = value.toString().split(PARAMETERS.SepIndexes);
+		String[] indices = value.toString().split(Parameters.SepIndexes);
 		String index1 = indices[0];
 		String index2 = indices[1];
 		
 		long offset1 = Long.parseLong(index1);
 		long offset2 = Long.parseLong(index2);
 		
-		final String [] positiveRecord = readRecord(fs, input1, offset1).split(PARAMETERS.SepItems);
-		final String [] negativeRecord = readRecord(fs, input2, offset2).split(PARAMETERS.SepItems);
+		final String [] positiveRecord = readRecord(fs, input1, offset1).split(Parameters.SepItems);
+		final String [] negativeRecord = readRecord(fs, input2, offset2).split(Parameters.SepItems);
 	
 		List<String> negList = new ArrayList<String>(Arrays.asList(negativeRecord));
 		

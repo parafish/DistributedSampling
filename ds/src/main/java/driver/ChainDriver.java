@@ -34,7 +34,7 @@ import sample.pattern.FreqPatternMapper;
 import sample.pattern.SquaredFreqPatternMapper;
 import sample.record.RecordSamplingMapper;
 import sample.record.RecordSamplingReducer;
-import util.PARAMETERS;
+import util.Parameters;
 
 
 public class ChainDriver extends Configured implements Tool
@@ -65,7 +65,7 @@ public class ChainDriver extends Configured implements Tool
 
 			for (int i = 0; i < 3; i++)
 			{
-				if (!p.contains(String.valueOf(i+1))) phase[i] = false;
+				if (!p.contains(String.valueOf(i + 1))) phase[i] = false;
 			}
 		}
 
@@ -117,8 +117,8 @@ public class ChainDriver extends Configured implements Tool
 		JobConf jobConf = new JobConf(getConf(), getClass());
 		jobConf.setJarByClass(getClass());
 
-		jobConf.set(PARAMETERS.N_SAMPLES, String.valueOf(nSamples));
-		jobConf.set(PARAMETERS.LEFT_PATH, leftInput.toString());
+		jobConf.set(Parameters.N_SAMPLES, String.valueOf(nSamples));
+		jobConf.set(Parameters.LEFT_PATH, leftInput.toString());
 
 		if (ow) // delete the output
 		{
@@ -149,7 +149,7 @@ public class ChainDriver extends Configured implements Tool
 		case 3:
 			weightMapper = new DiscriminativityMapper();
 			patternMapper = new DiscriminativityPatternMapper();
-			jobConf.set(PARAMETERS.RIGHT_PATH, rightInput.toString());
+			jobConf.set(Parameters.RIGHT_PATH, rightInput.toString());
 			jobConf.setInputFormat(CartesianInputFormat.class);
 			CartesianInputFormat.setLeftInputInfo(jobConf, TextInputFormat.class, leftInput.toString());
 			CartesianInputFormat.setRightInputInfo(jobConf, TextInputFormat.class, rightInput.toString());

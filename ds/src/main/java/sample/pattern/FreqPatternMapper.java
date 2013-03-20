@@ -10,7 +10,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.PARAMETERS;
+import util.Parameters;
 
 
 public class FreqPatternMapper extends AbstractPatternMapper
@@ -22,14 +22,12 @@ public class FreqPatternMapper extends AbstractPatternMapper
 		Path inputfilepath = new Path(leftPath);
 
 		long offset = Long.parseLong(value.toString());
-		String[] record = readRecord(fs, inputfilepath, offset).split(PARAMETERS.SepItems);
+		String[] record = readRecord(fs, inputfilepath, offset).split(Parameters.SepItems);
 
-		
-			List<String> pattern = sampleUniformly(Arrays.asList(record));
+		List<String> pattern = sampleUniformly(Arrays.asList(record));
 
 		if (pattern.size() == 0) return;
 
 		output.collect(NullWritable.get(), new Text(composePattern(pattern)));
-
 	}
 }
