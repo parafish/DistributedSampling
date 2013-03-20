@@ -6,6 +6,7 @@ public class Parameters
 	public static final String	LEFT_PATH		= "dist.left.path";
 	public static final String	RIGHT_PATH		= "dist.right.path";
 	public static final String	N_SAMPLES		= "dist.sample.size";
+	public static final String	MIN_PATTERN_LENGTH = "dist.pattern.min.length";
 
 	// separators
 	public final static String	SepItems		= " ";

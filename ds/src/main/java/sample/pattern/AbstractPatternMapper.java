@@ -40,6 +40,8 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements
 	protected String		leftPath	= null;
 	// right path
 	protected String		rightPath	= null;
+	// minimum pattern length
+	protected int			minLength	= 0;
 
 
 	@Override
@@ -47,7 +49,7 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements
 	{
 		leftPath = jobConf.get(Parameters.LEFT_PATH);
 		rightPath = jobConf.get(Parameters.RIGHT_PATH);
-
+		minLength = jobConf.getInt(Parameters.MIN_PATTERN_LENGTH, 0);
 		try
 		{
 			fs = FileSystem.get(jobConf);
@@ -57,6 +59,7 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements
 			e.printStackTrace();
 		}
 	}
+
 
 	/**
 	 * Reads a record from the given filesystem/inputPath/offset.
@@ -92,21 +95,28 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements
 	 *            the record, represented in a list of items
 	 * @return the sampled pattern
 	 */
-	protected <T> List<T> sampleUniformly(List<T> items)
+	protected <T extends Comparable<T>> List<T> sampleUniformly(List<T> items)
 	{
 		ArrayList<T> pattern = new ArrayList<T>();
-		if (items.size() < 2)
+		if (items.size() < minLength) return pattern;
+
+		// Collections.shuffle(items);
+		// pattern.addAll(items.size() - minLength, items);
+		// Collections.sort(pattern);
+
+		if (items.size() == minLength)
 		{
 			pattern.addAll(items);
 			return pattern;
 		}
 
-		while (pattern.size() < 2)
+		do
 		{
 			pattern.clear();
 			for (T t : items)
 				if (rng.nextBoolean()) pattern.add(t);
-		}
+		} while (pattern.size() < minLength);
+
 		return pattern;
 	}
 

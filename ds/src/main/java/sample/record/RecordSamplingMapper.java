@@ -88,7 +88,7 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	 * @author zheyi
 	 * 
 	 */
-	static class ReserviorOneSampler
+	public static class ReserviorOneSampler
 	{
 		private Apfloat								key					= null;
 		private Object								item				= null;

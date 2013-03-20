@@ -46,6 +46,7 @@ public class ChainDriver extends Configured implements Tool
 	private int			dist;								// required
 	private boolean		ow			= false;				// optional
 	private boolean[]	phase		= { true, true, true }; // optional
+	private int			miniLength	= 0;					// optional
 
 
 	private int parse(String[] arguments) throws ParseException
@@ -53,6 +54,7 @@ public class ChainDriver extends Configured implements Tool
 		Options options = new Options();
 		options.addOption("p", "phase", true, "which phase to run; debugging use only");
 		options.addOption("w", "overwrite", false, "if overwrites the output directory");
+		options.addOption("m", "minimum", true, "the minimum length of a pattern");
 
 		CommandLineParser parser = new GnuParser();
 		CommandLine cmd = parser.parse(options, arguments);
@@ -70,6 +72,14 @@ public class ChainDriver extends Configured implements Tool
 		}
 
 		if (cmd.hasOption('w')) ow = true;
+
+		if (cmd.hasOption('m'))
+		{			
+			int length = Integer.parseInt(cmd.getOptionValue('m'));
+			if (length < 0)
+				System.out.println("the set minimum length of a patter is less than 0. Use default value 2.");
+			miniLength = length;
+		}
 
 		// -------------------------------------------------------------------
 		// parse arguments
@@ -119,6 +129,7 @@ public class ChainDriver extends Configured implements Tool
 
 		jobConf.set(Parameters.N_SAMPLES, String.valueOf(nSamples));
 		jobConf.set(Parameters.LEFT_PATH, leftInput.toString());
+		jobConf.setInt(Parameters.MIN_PATTERN_LENGTH, miniLength);
 
 		if (ow) // delete the output
 		{
@@ -159,7 +170,7 @@ public class ChainDriver extends Configured implements Tool
 			patternMapper = new SquaredFreqPatternMapper();
 			jobConf.setInputFormat(CartesianInputFormat.class);
 			CartesianInputFormat.setLeftInputInfo(jobConf, TextInputFormat.class, leftInput.toString());
-			CartesianInputFormat.setRightInputInfo(jobConf, TextInputFormat.class, rightInput.toString());
+			CartesianInputFormat.setRightInputInfo(jobConf, TextInputFormat.class, leftInput.toString());
 			break;
 		default:
 			System.err.println("distribution not supported");

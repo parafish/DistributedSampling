@@ -26,7 +26,7 @@ public class FreqPatternMapper extends AbstractPatternMapper
 
 		List<String> pattern = sampleUniformly(Arrays.asList(record));
 
-		if (pattern.size() == 0) return;
+		if (pattern.size() == 0) return; 
 
 		output.collect(NullWritable.get(), new Text(composePattern(pattern)));
 	}
