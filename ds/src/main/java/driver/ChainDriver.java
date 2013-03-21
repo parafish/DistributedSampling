@@ -77,7 +77,7 @@ public class ChainDriver extends Configured implements Tool
 		{			
 			int length = Integer.parseInt(cmd.getOptionValue('m'));
 			if (length < 0)
-				System.out.println("the set minimum length of a patter is less than 0. Use default value 2.");
+				System.out.println("the set minimum length of a patter is less than 0. Use default value 0.");
 			miniLength = length;
 		}
 
@@ -125,7 +125,7 @@ public class ChainDriver extends Configured implements Tool
 
 		// ----------------- chain it! ----------------------------
 		JobConf jobConf = new JobConf(getConf(), getClass());
-		jobConf.setJarByClass(getClass());
+//		jobConf.setJarByClass(getClass());
 
 		jobConf.set(Parameters.N_SAMPLES, String.valueOf(nSamples));
 		jobConf.set(Parameters.LEFT_PATH, leftInput.toString());
@@ -139,7 +139,6 @@ public class ChainDriver extends Configured implements Tool
 		FileOutputFormat.setOutputPath(jobConf, output);
 
 		// prepare mappers
-		// weight mapper
 		AbstractPreMapper weightMapper = null;
 		AbstractPatternMapper patternMapper = null;
 		switch (dist)
@@ -152,7 +151,6 @@ public class ChainDriver extends Configured implements Tool
 			break;
 		case 2:
 			weightMapper = new AreaFreqMapper();
-
 			patternMapper = new AreaFreqPatternMapper();
 			jobConf.setInputFormat(TextInputFormat.class);
 			FileInputFormat.addInputPath(jobConf, leftInput);
@@ -185,12 +183,12 @@ public class ChainDriver extends Configured implements Tool
 		// map to index-weight
 		if (phase[0])
 			ChainMapper.addMapper(jobConf, weightMapper.getClass(), Writable.class, Text.class, Writable.class,
-							Text.class, false, new JobConf(false));
+							Text.class, false, jobConf);
 
 		// map to sampled index-weight
 		if (phase[1])
 			ChainMapper.addMapper(jobConf, RecordSamplingMapper.class, Writable.class, Text.class, NullWritable.class,
-							Text.class, false, new JobConf(false));
+							Text.class, false, jobConf);
 
 		// reducer
 		jobConf.setNumReduceTasks(phase[1] ? 1 : 0);
@@ -199,12 +197,12 @@ public class ChainDriver extends Configured implements Tool
 		// reduce samples from mappers to one sample (size=N_SAMPLES)
 		if (phase[1])
 			ChainReducer.setReducer(jobConf, RecordSamplingReducer.class, NullWritable.class, Text.class,
-							NullWritable.class, Text.class, false, new JobConf(false));
+							NullWritable.class, Text.class, false, jobConf);
 
 		// sample patterns from specific index
 		if (phase[2])
 			ChainReducer.addMapper(jobConf, patternMapper.getClass(), NullWritable.class, Text.class,
-							NullWritable.class, Text.class, false, new JobConf(false));
+							NullWritable.class, Text.class, false, jobConf);
 
 		JobClient.runJob(jobConf);
 		return 0;

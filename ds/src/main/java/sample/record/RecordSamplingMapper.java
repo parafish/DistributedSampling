@@ -101,6 +101,7 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 		private static int							precision;
 		private static FixedPrecisionApfloatHelper	helper;
 
+		// XXX: make it changeable
 		public final static int					defaultPrecision	= 20;
 		public final static int					maximumPrecision	= 100;
 
@@ -149,7 +150,7 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 				Apfloat exp = helper.divide(Apfloat.ONE, floatWeight);
 				key = pow(r, exp);
 				item = obj;
-				return true;
+				return true; 
 			}
 			else
 			// if the reservoir is exhausted
