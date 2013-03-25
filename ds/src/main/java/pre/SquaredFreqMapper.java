@@ -21,7 +21,8 @@ public class SquaredFreqMapper extends AbstractPairMapper
 		Set<T> intersect = new HashSet<T>(Arrays.asList(items1));
 		intersect.retainAll(new HashSet<T>(Arrays.asList(items2)));
 				
-		return new BigInteger("2").pow(intersect.size());
+		int intersectSize = intersect.size() > maxRecordLength ? maxRecordLength : intersect.size();
+		return new BigInteger("2").pow(intersectSize);
 	}
 
 }

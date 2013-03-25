@@ -26,8 +26,12 @@ public class DiscriminativityMapper extends AbstractPairMapper
 		Set<T> complement = new HashSet<T>(Arrays.asList(positive));
 		complement.removeAll(negativeSet);
 		
-		BigInteger firstPart = new BigInteger("2").pow(complement.size()).subtract(BigInteger.ONE);
-		BigInteger secondPart = new BigInteger("2").pow(intersect.size());
+		// XXX: not that precise
+		int complementSize = complement.size() > maxRecordLength ? maxRecordLength : complement.size();
+		int intersectSize = intersect.size() > maxRecordLength ? maxRecordLength : intersect.size();
+		
+		BigInteger firstPart = new BigInteger("2").pow(complementSize).subtract(BigInteger.ONE);
+		BigInteger secondPart = new BigInteger("2").pow(intersectSize);
 		return firstPart.multiply(secondPart);
 	}
 

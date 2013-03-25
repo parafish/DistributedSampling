@@ -1,5 +1,7 @@
 package driver;
 
+import static util.Parameters.DEBUG_MODE;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -39,14 +41,15 @@ import util.Parameters;
 
 public class ChainDriver extends Configured implements Tool
 {
-	private Path		leftInput	= null;				// required
-	private Path		rightInput	= null;
-	private Path		output		= null;				// required
-	private int			nSamples	= 0;					// required
-	private int			dist;								// required
-	private boolean		ow			= false;				// optional
-	private boolean[]	phase		= { true, true, true }; // optional
-	private int			miniLength	= 0;					// optional
+	private Path		leftInput			= null;				// required
+	private Path		rightInput			= null;
+	private Path		output				= null;				// required
+	private int			nSamples			= 0;					// required
+	private int			dist;										// required
+	private boolean		ow					= false;				// optional
+	private boolean[]	phase				= { true, true, true }; // optional
+	private int			minPatternLength	= 0;					// optional
+	private int 		maxRecordLength     = 300;					// optional
 
 
 	private int parse(String[] arguments) throws ParseException
@@ -55,6 +58,13 @@ public class ChainDriver extends Configured implements Tool
 		options.addOption("p", "phase", true, "which phase to run; debugging use only");
 		options.addOption("w", "overwrite", false, "if overwrites the output directory");
 		options.addOption("m", "minimum", true, "the minimum length of a pattern");
+
+		options.addOption("r", "maxRecLen", true, "the maximum acceptable record length; default 300");
+//		options.addOption("c", "maxPre", true, "the maximum precision when sampling; default 100");
+//		options.addOption("e", "minPre", true, "the minimum precision when sampling; default 20");
+
+		// TODO: disable debug mode
+		options.addOption("d", "debug", false, "disable debug mode (not used)");
 
 		CommandLineParser parser = new GnuParser();
 		CommandLine cmd = parser.parse(options, arguments);
@@ -67,18 +77,29 @@ public class ChainDriver extends Configured implements Tool
 
 			for (int i = 0; i < 3; i++)
 			{
-				if (!p.contains(String.valueOf(i + 1))) phase[i] = false;
+				if (!p.contains(String.valueOf(i + 1)))
+					phase[i] = false;
 			}
 		}
 
-		if (cmd.hasOption('w')) ow = true;
-
 		if (cmd.hasOption('m'))
-		{			
+		{
 			int length = Integer.parseInt(cmd.getOptionValue('m'));
 			if (length < 0)
 				System.out.println("the set minimum length of a patter is less than 0. Use default value 0.");
-			miniLength = length;
+			minPatternLength = length;
+		}
+
+		if (cmd.hasOption('w'))
+			ow = true;
+
+		// TODO: no use if set here
+		if (cmd.hasOption('d'))
+			DEBUG_MODE = false;
+
+		if (cmd.hasOption('r'))
+		{
+			maxRecordLength = Integer.parseInt(cmd.getOptionValue('r'));
 		}
 
 		// -------------------------------------------------------------------
@@ -121,15 +142,17 @@ public class ChainDriver extends Configured implements Tool
 	public int run(String[] args) throws Exception
 	{
 		// ----------------- parse the args! ----------------------------
-		if (parse(args) == -1) System.exit(1);
+		if (parse(args) == -1)
+			System.exit(1);
 
 		// ----------------- chain it! ----------------------------
 		JobConf jobConf = new JobConf(getConf(), getClass());
-//		jobConf.setJarByClass(getClass());
+		// jobConf.setJarByClass(getClass());
 
 		jobConf.set(Parameters.N_SAMPLES, String.valueOf(nSamples));
 		jobConf.set(Parameters.LEFT_PATH, leftInput.toString());
-		jobConf.setInt(Parameters.MIN_PATTERN_LENGTH, miniLength);
+		jobConf.setInt(Parameters.MIN_PATTERN_LENGTH, minPatternLength);
+		jobConf.setInt(Parameters.MAX_RECORD_LENGTH, maxRecordLength);
 
 		if (ow) // delete the output
 		{

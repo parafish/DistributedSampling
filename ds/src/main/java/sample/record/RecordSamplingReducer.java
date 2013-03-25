@@ -1,9 +1,11 @@
 package sample.record;
+import static util.Parameters.DEBUG_MODE;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.PriorityQueue;
+import java.util.logging.Logger;
 
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -24,6 +26,8 @@ import util.Parameters;
  */
 public class RecordSamplingReducer extends MapReduceBase implements Reducer<NullWritable, Text, NullWritable, Text>
 {
+	private final static Logger					LOGGER		= Logger.getLogger(RecordSamplingMapper.class.getName());
+
 	private int										nSamples	= 0;
 	private OutputCollector<NullWritable, Text>		output;
 
@@ -50,8 +54,18 @@ public class RecordSamplingReducer extends MapReduceBase implements Reducer<Null
 	@Override
 	public void close() throws IOException
 	{
+		if (DEBUG_MODE)
+			LOGGER.info("Minimum key " + sample.peek().getFirst().toString(true));
 		for (Pair<Apfloat, String> pair : sample)
+		{
 			this.output.collect(NullWritable.get(), new Text(pair.getSecond()));
+		}
+		if (DEBUG_MODE)
+		{
+			while (sample.size() > 1 && ! sample.isEmpty())
+				sample.poll();
+			LOGGER.info("Maximum key " + sample.poll().getFirst().toString(true));
+		}		
 	}
 
 

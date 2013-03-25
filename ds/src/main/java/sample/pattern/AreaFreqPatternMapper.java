@@ -13,8 +13,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import sample.record.RecordSamplingMapper.ReserviorOneSampler;
 import util.Parameters;
+import util.ReservoirOneSampler;
 
 
 public class AreaFreqPatternMapper extends AbstractPatternMapper
@@ -25,13 +25,11 @@ public class AreaFreqPatternMapper extends AbstractPatternMapper
 		if (items.size() < minLength) return new ArrayList<T>();
 
 		int k;
-		double key;
-
 		// sample k~s(1..n), reservoir size=1
-		ReserviorOneSampler weightSamper = new ReserviorOneSampler();
+		ReservoirOneSampler weightSamper = new ReservoirOneSampler();
 		do
 		{
-			for (int i = minLength==0?1:minLength; i <= items.size(); i++)
+			for (int i = (minLength==0?1:minLength); i <= items.size(); i++)
 			{
 				long weight = ArithmeticUtils.binomialCoefficient(items.size(), i);
 				weightSamper.sample(String.valueOf(weight), i);
@@ -49,7 +47,7 @@ public class AreaFreqPatternMapper extends AbstractPatternMapper
 		// sample F~(|F|=k), reservoir size = k
 
 		Collections.shuffle(items);
-		ArrayList<T> res = new ArrayList<T>(items.subList(0, k));
+		List<T> res = new ArrayList<T>(items.subList(0, k));
 		// int count = 0;
 		// for (T item : items)
 		// {
