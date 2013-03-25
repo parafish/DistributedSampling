@@ -29,13 +29,13 @@ public abstract class AbstractPreMapper extends MapReduceBase implements Mapper<
 {
 	private final static Logger	LOGGER			= Logger.getLogger(RecordSamplingMapper.class.getName());
 
-	protected int				maxRecordLength	= 300;
+	protected int				maxRecordLength	= Parameters.DEFAULT_RECORD_LENGTH;
 
 
 	@Override
 	public void configure(JobConf jobConf)
 	{
-		maxRecordLength = jobConf.getInt(Parameters.MAX_RECORD_LENGTH, 300);
+		maxRecordLength = jobConf.getInt(Parameters.MAX_RECORD_LENGTH, Parameters.DEFAULT_RECORD_LENGTH);
 		if (DEBUG_MODE)
 			LOGGER.info("Max record length: " + maxRecordLength);
 	}

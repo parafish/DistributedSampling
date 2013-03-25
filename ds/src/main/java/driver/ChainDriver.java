@@ -1,7 +1,5 @@
 package driver;
 
-import static util.Parameters.DEBUG_MODE;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -41,15 +39,15 @@ import util.Parameters;
 
 public class ChainDriver extends Configured implements Tool
 {
-	private Path		leftInput			= null;				// required
+	private Path		leftInput			= null;									// required
 	private Path		rightInput			= null;
-	private Path		output				= null;				// required
-	private int			nSamples			= 0;					// required
-	private int			dist;										// required
-	private boolean		ow					= false;				// optional
-	private boolean[]	phase				= { true, true, true }; // optional
-	private int			minPatternLength	= 0;					// optional
-	private int 		maxRecordLength     = 300;					// optional
+	private Path		output				= null;									// required
+	private int			nSamples			= 0;										// required
+	private int			dist				= 0;										// required
+	private boolean		ow					= false;									// optional
+	private boolean[]	phase				= { true, true, true };					// optional
+	private int			minPatternLength	= Parameters.DEFAULT_MIN_PATTERN_LENGTH;	// optional
+	private int			maxRecordLength		= Parameters.DEFAULT_RECORD_LENGTH;		// optional
 
 
 	private int parse(String[] arguments) throws ParseException
@@ -60,8 +58,10 @@ public class ChainDriver extends Configured implements Tool
 		options.addOption("m", "minimum", true, "the minimum length of a pattern");
 
 		options.addOption("r", "maxRecLen", true, "the maximum acceptable record length; default 300");
-//		options.addOption("c", "maxPre", true, "the maximum precision when sampling; default 100");
-//		options.addOption("e", "minPre", true, "the minimum precision when sampling; default 20");
+		// options.addOption("c", "maxPre", true,
+		// "the maximum precision when sampling; default 100");
+		// options.addOption("e", "minPre", true,
+		// "the minimum precision when sampling; default 20");
 
 		// TODO: disable debug mode
 		options.addOption("d", "debug", false, "disable debug mode (not used)");
@@ -94,8 +94,8 @@ public class ChainDriver extends Configured implements Tool
 			ow = true;
 
 		// TODO: no use if set here
-		if (cmd.hasOption('d'))
-			DEBUG_MODE = false;
+		// if (cmd.hasOption('d'))
+		// DEBUG_MODE = false;
 
 		if (cmd.hasOption('r'))
 		{
@@ -147,7 +147,6 @@ public class ChainDriver extends Configured implements Tool
 
 		// ----------------- chain it! ----------------------------
 		JobConf jobConf = new JobConf(getConf(), getClass());
-		// jobConf.setJarByClass(getClass());
 
 		jobConf.set(Parameters.N_SAMPLES, String.valueOf(nSamples));
 		jobConf.set(Parameters.LEFT_PATH, leftInput.toString());
