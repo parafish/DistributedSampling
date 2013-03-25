@@ -3,6 +3,9 @@ package driver;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
@@ -50,70 +53,93 @@ public class ChainDriver extends Configured implements Tool
 	private int			maxRecordLength		= Parameters.DEFAULT_RECORD_LENGTH;		// optional
 
 
-	private int parse(String[] arguments) throws ParseException
+	private int parse(String[] args)
 	{
+		// boolean options
+		Option help = new Option("help", "print this meesage");
+		Option overwrite = new Option("ow", "overwrite the output directory");
+
+		// argument options
+		@SuppressWarnings("static-access")
+		Option phase = OptionBuilder.withArgName("phase").hasArg()
+						.withDescription("the phase to run; used for debugging; can be 1, 2, 3").create("phase");
+		@SuppressWarnings("static-access")
+		Option minpatlen = OptionBuilder.withArgName("length").hasArg()
+						.withDescription("the minimum length of a pattern").create("minpatlen");
+		@SuppressWarnings("static-access")
+		Option maxreclen = OptionBuilder.withArgName("length").hasArg()
+						.withDescription("the maximumm length of a record").create("maxreclen");
+		// create the options
 		Options options = new Options();
-		options.addOption("p", "phase", true, "which phase to run; debugging use only");
-		options.addOption("w", "overwrite", false, "if overwrites the output directory");
-		options.addOption("m", "minimum", true, "the minimum length of a pattern");
+		options.addOption(help);
+		options.addOption(overwrite);
+		options.addOption(phase);
+		options.addOption(minpatlen);
+		options.addOption(maxreclen);
 
-		options.addOption("r", "maxRecLen", true, "the maximum acceptable record length; default 300");
-		// options.addOption("c", "maxPre", true,
-		// "the maximum precision when sampling; default 100");
-		// options.addOption("e", "minPre", true,
-		// "the minimum precision when sampling; default 20");
+		// create the help
+		String syntax = getClass().getSimpleName()
+						+ " [generic options] [app options] <input> [<input2>] <output> <#samples> <distribution>\n where app options are:\n";
+		HelpFormatter formatter = new HelpFormatter();
 
-		// TODO: disable debug mode
-		options.addOption("d", "debug", false, "disable debug mode (not used)");
-
+		// create the parser
 		CommandLineParser parser = new GnuParser();
-		CommandLine cmd = parser.parse(options, arguments);
+		CommandLine cmd = null;
 
-		// -------------------------------------------------------------------
-		// parse options
-		if (cmd.hasOption('p'))
+		try
 		{
-			String p = cmd.getOptionValue('p');
+			cmd = parser.parse(options, args);
+		}
+		catch (ParseException exp)
+		{
+			System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+			return -1;
+		}
+
+		// query the command line
+		if (cmd.hasOption(help.getOpt()))
+		{
+			formatter.printHelp(syntax, options);
+			ToolRunner.printGenericCommandUsage(System.err);
+			return -1;
+		}
+
+		if (cmd.hasOption(overwrite.getOpt()))
+			ow = true;
+
+		if (cmd.hasOption(phase.getOpt()))
+		{
+			String p = cmd.getOptionValue(phase.getOpt());
 
 			for (int i = 0; i < 3; i++)
 			{
 				if (!p.contains(String.valueOf(i + 1)))
-					phase[i] = false;
+					this.phase[i] = false;
 			}
 		}
 
-		if (cmd.hasOption('m'))
+		if (cmd.hasOption(minpatlen.getOpt()))
 		{
-			int length = Integer.parseInt(cmd.getOptionValue('m'));
+			int length = Integer.parseInt(cmd.getOptionValue(minpatlen.getOpt()));
 			if (length < 0)
-				System.out.println("the set minimum length of a patter is less than 0. Use default value 0.");
+				System.out.println("the set minimum length of a patter is less than 0. Use default value "
+								+ Parameters.MIN_PATTERN_LENGTH);
 			minPatternLength = length;
 		}
 
-		if (cmd.hasOption('w'))
-			ow = true;
-
-		// TODO: no use if set here
-		// if (cmd.hasOption('d'))
-		// DEBUG_MODE = false;
-
-		if (cmd.hasOption('r'))
+		if (cmd.hasOption(maxreclen.getOpt()))
 		{
-			maxRecordLength = Integer.parseInt(cmd.getOptionValue('r'));
+			maxRecordLength = Integer.parseInt(cmd.getOptionValue(maxreclen.getOpt()));
 		}
 
-		// -------------------------------------------------------------------
+		// add the rest arguments
 		// parse arguments
-		String[] args = cmd.getArgs();
+		args = cmd.getArgs();
 		if (args.length < 4 || args.length > 5)
 		{
-			{
-				System.err.printf(
-								"Usage: %s [generic options] <input> [<input2>] <output> <#samples> <distribution>\n",
-								getClass().getSimpleName());
-				ToolRunner.printGenericCommandUsage(System.err);
-				return -1;
-			}
+			formatter.printHelp(syntax, options);
+			ToolRunner.printGenericCommandUsage(System.err);
+			return -1;
 		}
 
 		// input path, settings
@@ -142,8 +168,8 @@ public class ChainDriver extends Configured implements Tool
 	public int run(String[] args) throws Exception
 	{
 		// ----------------- parse the args! ----------------------------
-		if (parse(args) == -1)
-			System.exit(1);
+		if (parse(args) != 0)
+			return -1;
 
 		// ----------------- chain it! ----------------------------
 		JobConf jobConf = new JobConf(getConf(), getClass());
@@ -194,7 +220,7 @@ public class ChainDriver extends Configured implements Tool
 			break;
 		default:
 			System.err.println("distribution not supported");
-			System.exit(1);
+			return -1;
 		}
 
 		// -----------------------------------------------------------------
@@ -227,6 +253,7 @@ public class ChainDriver extends Configured implements Tool
 							NullWritable.class, Text.class, false, jobConf);
 
 		JobClient.runJob(jobConf);
+		
 		return 0;
 	}
 
