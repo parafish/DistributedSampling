@@ -12,6 +12,9 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
+import org.apfloat.Apfloat;
+import org.apfloat.ApfloatMath;
+import org.apfloat.Apint;
 
 import util.Parameters;
 import util.ReservoirOneSampler;
@@ -19,50 +22,42 @@ import util.ReservoirOneSampler;
 
 public class AreaFreqPatternMapper extends AbstractPatternMapper
 {
-	// FIXME: wrong!
-	private <T extends Comparable<T>> List<T> sampleWeighted(List<T> items)
+	private String binominalCoefficient(int n, int k)
 	{
-		if (items.size() < minLength) return new ArrayList<T>();
+		return null;
+	}
 
-		int k;
+
+	// FIXME: wrong!
+	<T extends Comparable<T>> List<T> sampleWeighted(List<T> items)
+	{
+		if (items.size() < minLength)
+			return new ArrayList<T>();
+
+		int n = items.size();
 		// sample k~s(1..n), reservoir size=1
 		ReservoirOneSampler weightSamper = new ReservoirOneSampler();
-		do
+
+		for (int i = (minLength == 0 ? 1 : minLength); i <= n; i++)
 		{
-			for (int i = (minLength==0?1:minLength); i <= items.size(); i++)
-			{
-				long weight = ArithmeticUtils.binomialCoefficient(items.size(), i);
-				weightSamper.sample(String.valueOf(weight), i);
-				
-//				double currKey = Math.pow(rng.nextDouble(), 1.0d / weight);
-//				if (currKey > key)
-//				{
-//					key = currKey;
-//					k = i;
-//				}
-			}
-			k = (Integer)weightSamper.getItem();
-		} while (k < minLength);
+			double logBiCo = ArithmeticUtils.binomialCoefficientLog(n, i);
+			Apfloat floatweight = ApfloatMath.exp(new Apfloat(String.valueOf(logBiCo)));
+			Apint weight = floatweight.floor();
+			if (floatweight.ceil().subtract(floatweight).compareTo(floatweight.subtract(floatweight.floor())) < 0)
+				weight = floatweight.ceil();
+			weightSamper.sample(weight.toString(true), i);
+		}
+		int k = (Integer) weightSamper.getItem();
 
 		// sample F~(|F|=k), reservoir size = k
 
 		Collections.shuffle(items);
-		List<T> res = new ArrayList<T>(items.subList(0, k));
-		// int count = 0;
-		// for (T item : items)
-		// {
-		// count++;
-		// if (count <= k)
-		// res.add(item);
-		// else
-		// {
-		// int r = rng.nextInt(count);
-		// if (r < k) res.set(r, item);
-		// }
-		// }
+		
+		List<T> res = items.subList(0, k);
 
 		Collections.sort(res);
 		return res;
+//		return new ArrayList<T>(Arrays.asList((T) String.valueOf(res.size())));
 	}
 
 
@@ -77,7 +72,8 @@ public class AreaFreqPatternMapper extends AbstractPatternMapper
 
 		List<String> pattern = sampleWeighted(Arrays.asList(record));
 
-		if (pattern.size() == 0) return;
+		if (pattern.size() == 0)
+			return;
 
 		output.collect(NullWritable.get(), new Text(composePattern(pattern)));
 	}

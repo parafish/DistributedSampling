@@ -114,7 +114,8 @@ public class ReservoirOneSampler
 						LOGGER.severe("pow(x, y) with precision " + precision + ": x=" + key.toString(true) + " y="
 										+ floatWeight.toString(true));
 					e.printStackTrace();
-					// FIXME: add return, or modify that tw=0
+					// TODO: add counters
+					tw = Apfloat.ZERO.precision(precision);
 				}
 				Apfloat r2 = random.nextApfloat(tw, Apfloat.ONE, helper);
 				Apfloat exp = helper.divide(Apfloat.ONE, floatWeight);
