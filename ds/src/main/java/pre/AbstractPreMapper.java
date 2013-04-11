@@ -27,14 +27,19 @@ import util.Parameters;
  */
 public abstract class AbstractPreMapper extends MapReduceBase implements Mapper<Writable, Text, Writable, Text>
 {
-	private final static Logger	LOGGER			= Logger.getLogger(RecordSamplingMapper.class.getName());
+	private final static Logger LOGGER = Logger.getLogger(RecordSamplingMapper.class.getName());
 
-	protected int				maxRecordLength	= Parameters.DEFAULT_RECORD_LENGTH;
+	protected int maxRecordLength = Parameters.DEFAULT_RECORD_LENGTH;
+
+	protected String filepath;
 
 
 	@Override
 	public void configure(JobConf jobConf)
 	{
+		filepath = jobConf.get("map.input.file");
+		if (Parameters.DEBUG_MODE)
+			System.out.println("File path: " + filepath);
 		maxRecordLength = jobConf.getInt(Parameters.MAX_RECORD_LENGTH, Parameters.DEFAULT_RECORD_LENGTH);
 		if (DEBUG_MODE)
 			LOGGER.info("Max record length: " + maxRecordLength);

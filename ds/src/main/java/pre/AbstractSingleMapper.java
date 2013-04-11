@@ -12,8 +12,10 @@ import util.Parameters;
 
 
 /**
- * Maps each offset/text pair to offset/weight pairs. <p>
+ * Maps each offset/text pair to offset/weight pairs.
+ * <p>
  * Subclasses should implement the weight calculation function.
+ * 
  * @see FreqMapper
  * @see AreaFreqMapper
  * @author zheyi
@@ -22,16 +24,21 @@ public abstract class AbstractSingleMapper extends AbstractPreMapper
 {
 	/**
 	 * Calculates the weight of an array.
-	 * @param 	items the array of items
-	 * @return 	the weight of the array of items
+	 * 
+	 * @param items
+	 *            the array of items
+	 * @return the weight of the array of items
 	 */
 	protected abstract <T> BigInteger calcWeight(T[] items);
 
+
 	@Override
-	public void map(Writable key, Text value, OutputCollector<Writable, Text> output,
-					Reporter reporter) throws IOException
+	public void map(Writable key, Text value, OutputCollector<Writable, Text> output, Reporter reporter)
+					throws IOException
 	{
-		String[] items = value.toString().split(Parameters.SepItems);		
-		output.collect(key, new Text(calcWeight(items).toString()));
+		String[] items = value.toString().trim().split(Parameters.SepItemsRegex);
+		String outputkey = filepath + Parameters.SepFilePosition + key.toString();
+//			System.out.println("outputkey: " + outputkey);
+		output.collect(new Text(outputkey), new Text(calcWeight(items).toString()));
 	}
 }

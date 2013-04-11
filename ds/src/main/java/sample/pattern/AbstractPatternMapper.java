@@ -79,7 +79,7 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements
 		in.seek(offset);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		String record = reader.readLine();
+		String record = reader.readLine().trim();
 		in.close();
 		reader.close();
 
@@ -124,8 +124,7 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements
 	/**
 	 * Composes a set of items to a string, separated by space. Used for output.
 	 * 
-	 * @param pattern
-	 *            a set of items
+	 * @param pattern a set of items
 	 * @return a string containing the items
 	 */
 	protected String composePattern(Collection<String> pattern)

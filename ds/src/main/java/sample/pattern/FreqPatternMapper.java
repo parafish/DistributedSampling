@@ -19,10 +19,12 @@ public class FreqPatternMapper extends AbstractPatternMapper
 	public void map(NullWritable key, Text value, OutputCollector<NullWritable, Text> output, Reporter reporter)
 					throws IOException
 	{
-		Path inputfilepath = new Path(leftPath);
+		String [] pathposition = value.toString().split(Parameters.SepFilePosition);
+//		System.out.println("pathposition: " + value.toString());
+		Path inputfilepath = new Path(pathposition[0]);
 
-		long offset = Long.parseLong(value.toString());
-		String[] record = readRecord(fs, inputfilepath, offset).split(Parameters.SepItems);
+		long offset = Long.parseLong(pathposition[1]);
+		String[] record = readRecord(fs, inputfilepath, offset).split(Parameters.SepItemsRegex);
 
 		List<String> pattern = sampleUniformly(Arrays.asList(record));
 
