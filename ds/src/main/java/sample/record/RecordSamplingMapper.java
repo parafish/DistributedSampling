@@ -1,6 +1,6 @@
 package sample.record;
 
-import static util.Parameters.DEBUG_MODE;
+import static util.Config.DEBUG_MODE;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,8 +16,8 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.Parameters;
-import util.ReservoirOneSampler;
+import util.Config;
+import util.sampler.ReservoirOneSampler;
 
 
 /**
@@ -46,7 +46,7 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	public void configure(JobConf jobConf)
 	{
 		// get the number of samples
-		int nSamples = Integer.parseInt(jobConf.get(Parameters.N_SAMPLES));
+		int nSamples = Integer.parseInt(jobConf.get(Config.N_SAMPLES));
 		instances = new ArrayList<ReservoirOneSampler>(nSamples);
 
 		for (int i = 0; i < nSamples; i++)
@@ -77,7 +77,7 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 		for (ReservoirOneSampler sampler : instances)
 		{
 			StringBuilder output = new StringBuilder();
-			output.append(sampler.getItem().toString()).append(Parameters.SepIndexWeight).append(sampler.getKey());
+			output.append(sampler.getItem().toString()).append(Config.SepIndexWeight).append(sampler.getKey());
 
 			this.output.collect(NullWritable.get(), new Text(output.toString()));
 		}

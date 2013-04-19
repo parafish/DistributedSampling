@@ -37,7 +37,7 @@ import sample.pattern.FreqPatternMapper;
 import sample.pattern.SquaredFreqPatternMapper;
 import sample.record.RecordSamplingMapper;
 import sample.record.RecordSamplingReducer;
-import util.Parameters;
+import util.Config;
 
 
 public class ChainDriver extends Configured implements Tool
@@ -49,8 +49,8 @@ public class ChainDriver extends Configured implements Tool
 	private int			dist				= 0;										// required
 	private boolean		ow					= false;									// optional
 	private boolean[]	phase				= { true, true, true };					// optional
-	private int			minPatternLength	= Parameters.DEFAULT_MIN_PATTERN_LENGTH;	// optional
-	private int			maxRecordLength		= Parameters.DEFAULT_RECORD_LENGTH;		// optional
+	private int			minPatternLength	= Config.DEFAULT_MIN_PATTERN_LENGTH;	// optional
+	private int			maxRecordLength		= Config.DEFAULT_MAX_RECORD_LENGTH;		// optional
 
 
 	private int parse(String[] args)
@@ -123,7 +123,7 @@ public class ChainDriver extends Configured implements Tool
 			int length = Integer.parseInt(cmd.getOptionValue(minpatlen.getOpt()));
 			if (length < 0)
 				System.out.println("the set minimum length of a patter is less than 0. Use default value "
-								+ Parameters.MIN_PATTERN_LENGTH);
+								+ Config.MIN_PATTERN_LENGTH);
 			minPatternLength = length;
 		}
 
@@ -174,10 +174,10 @@ public class ChainDriver extends Configured implements Tool
 		// ----------------- chain it! ----------------------------
 		JobConf jobConf = new JobConf(getConf(), getClass());
 
-		jobConf.set(Parameters.N_SAMPLES, String.valueOf(nSamples));
-		jobConf.set(Parameters.LEFT_PATH, leftInput.toString());
-		jobConf.setInt(Parameters.MIN_PATTERN_LENGTH, minPatternLength);
-		jobConf.setInt(Parameters.MAX_RECORD_LENGTH, maxRecordLength);
+		jobConf.set(Config.N_SAMPLES, String.valueOf(nSamples));
+		jobConf.set(Config.LEFT_PATH, leftInput.toString());
+		jobConf.setInt(Config.MIN_PATTERN_LENGTH, minPatternLength);
+		jobConf.setInt(Config.MAX_RECORD_LENGTH, maxRecordLength);
 
 		if (ow) // delete the output
 		{
@@ -206,7 +206,7 @@ public class ChainDriver extends Configured implements Tool
 		case 3:
 			weightMapper = new DiscriminativityMapper();
 			patternMapper = new DiscriminativityPatternMapper();
-			jobConf.set(Parameters.RIGHT_PATH, rightInput.toString());
+			jobConf.set(Config.RIGHT_PATH, rightInput.toString());
 			jobConf.setInputFormat(CartesianInputFormat.class);
 			CartesianInputFormat.setLeftInputInfo(jobConf, TextInputFormat.class, leftInput.toString());
 			CartesianInputFormat.setRightInputInfo(jobConf, TextInputFormat.class, rightInput.toString());

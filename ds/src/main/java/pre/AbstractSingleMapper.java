@@ -8,7 +8,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.Parameters;
+import util.Config;
 
 
 /**
@@ -36,8 +36,8 @@ public abstract class AbstractSingleMapper extends AbstractPreMapper
 	public void map(Writable key, Text value, OutputCollector<Writable, Text> output, Reporter reporter)
 					throws IOException
 	{
-		String[] items = value.toString().trim().split(Parameters.SepItemsRegex);
-		String outputkey = filepath + Parameters.SepFilePosition + key.toString();
+		String[] items = value.toString().trim().split(Config.SepItemsRegex);
+		String outputkey = filepath + Config.SepFilePosition + key.toString();
 //			System.out.println("outputkey: " + outputkey);
 		output.collect(new Text(outputkey), new Text(calcWeight(items).toString()));
 	}

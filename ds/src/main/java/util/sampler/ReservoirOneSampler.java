@@ -1,6 +1,6 @@
-package util;
+package util.sampler;
 
-import static util.Parameters.DEBUG_MODE;
+import static util.Config.DEBUG_MODE;
 
 import java.util.logging.Logger;
 
@@ -10,6 +10,8 @@ import org.apfloat.Apint;
 import org.apfloat.FixedPrecisionApfloatHelper;
 
 import sample.record.RecordSamplingMapper;
+import util.Config;
+import util.RNG;
 
 
 /**
@@ -19,23 +21,22 @@ import sample.record.RecordSamplingMapper;
  */
 public class ReservoirOneSampler
 {
-	private final static Logger					LOGGER				= Logger.getLogger(RecordSamplingMapper.class
-																					.getName());
+	private final static Logger LOGGER = Logger.getLogger(RecordSamplingMapper.class.getName());
 
-	private Apfloat								key					= null;
-	private Object								item				= null;
+	private Apfloat key = null;
+	private Object item = null;
 
-	private final RNG							random				= new RNG();
-	private boolean								startjump			= true;
-	private Apint								accumulation		= Apint.ZERO;
-	private Apfloat								Xw					= Apfloat.ZERO;
+	private final RNG random = new RNG();
+	private boolean startjump = true;
+	private Apint accumulation = Apint.ZERO;
+	private Apfloat Xw = Apfloat.ZERO;
 
-	private static int							precision;
-	private static FixedPrecisionApfloatHelper	helper;
+	private static int precision;
+	private static FixedPrecisionApfloatHelper helper;
 
 	// XXX: make it changeable
-	public final static int						defaultPrecision	= Parameters.DEFAULT_MIN_PRECISION;
-	public final static int						maximumPrecision	= Parameters.DEFAULT_MAX_PRECISION;
+	public final static int defaultPrecision = Config.DEFAULT_MIN_PRECISION;
+	public final static int maximumPrecision = Config.DEFAULT_MAX_PRECISION;
 
 
 	/**
@@ -52,8 +53,7 @@ public class ReservoirOneSampler
 	 * Initializes the reservoir sampling algorithm with an initial precision
 	 * This precision will be increased if needed.
 	 * 
-	 * @param p
-	 *            the initial precision
+	 * @param p the initial precision
 	 */
 	public ReservoirOneSampler(int p)
 	{
@@ -66,11 +66,9 @@ public class ReservoirOneSampler
 	 * Decides if an item would be sampled with its weight.
 	 * <p>
 	 * 
-	 * @param w
-	 *            the weight of this item. should be an integer represented in
+	 * @param w the weight of this item. should be an integer represented in
 	 *            <code>String</code>.
-	 * @param obj
-	 *            the item to decide
+	 * @param obj the item to decide
 	 * @return if the item was sampled
 	 */
 	public boolean sample(String w, Object obj)

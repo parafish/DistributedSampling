@@ -12,7 +12,7 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.join.CompositeInputSplit;
 import org.apache.hadoop.util.ReflectionUtils;
 
-import util.Parameters;
+import util.Config;
 
 
 /**
@@ -186,8 +186,8 @@ public class CartesianProduct
 				if (rightRR.next(rkey, rvalue))
 				{
 					// return key/value
-					key.set(lkey.toString() + Parameters.SepIndexes + rkey.toString());
-					value.set(lvalue.toString() + Parameters.SepRecords + rvalue.toString());
+					key.set(lkey.toString() + Config.SepIndexes + rkey.toString());
+					value.set(lvalue.toString() + Config.SepRecords + rvalue.toString());
 				}
 				else
 				{

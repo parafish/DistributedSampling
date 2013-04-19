@@ -16,6 +16,8 @@ import org.apache.hadoop.thirdparty.guava.common.collect.Multiset;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import util.sampler.ReservoirOneSampler;
+
 
 public class ReservoirOneSamplerTest
 {

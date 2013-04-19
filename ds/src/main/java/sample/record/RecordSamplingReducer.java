@@ -1,5 +1,5 @@
 package sample.record;
-import static util.Parameters.DEBUG_MODE;
+import static util.Config.DEBUG_MODE;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -17,7 +17,7 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mrunit.types.Pair;
 import org.apfloat.Apfloat;
 
-import util.Parameters;
+import util.Config;
 
 /**
  * Selects k pairs from the incoming stream, with top k keys.
@@ -39,7 +39,7 @@ public class RecordSamplingReducer extends MapReduceBase implements Reducer<Null
 	public void configure(JobConf jobConf)
 	{
 		// get the number of samples
-		nSamples = Integer.parseInt(jobConf.get(Parameters.N_SAMPLES));
+		nSamples = Integer.parseInt(jobConf.get(Config.N_SAMPLES));
 
 		sample = new PriorityQueue<Pair<Apfloat, String>>(nSamples, new Comparator<Pair<Apfloat, String>>()
 		{
@@ -77,7 +77,7 @@ public class RecordSamplingReducer extends MapReduceBase implements Reducer<Null
 		{
 			Text value = values.next();
 
-			String[] indexweight = value.toString().split(Parameters.SepIndexWeight);
+			String[] indexweight = value.toString().split(Config.SepIndexWeight);
 			String index = indexweight[0];
 			Apfloat weight = new Apfloat(indexweight[1]);
 

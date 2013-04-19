@@ -16,7 +16,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 
-import util.Parameters;
+import util.Config;
 import util.RNG;
 
 
@@ -47,9 +47,9 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements
 	@Override
 	public void configure(JobConf jobConf)
 	{
-		leftPath = jobConf.get(Parameters.LEFT_PATH);
-		rightPath = jobConf.get(Parameters.RIGHT_PATH);
-		minLength = jobConf.getInt(Parameters.MIN_PATTERN_LENGTH, 0);
+		leftPath = jobConf.get(Config.LEFT_PATH);
+		rightPath = jobConf.get(Config.RIGHT_PATH);
+		minLength = jobConf.getInt(Config.MIN_PATTERN_LENGTH, 0);
 		try
 		{
 			fs = FileSystem.get(jobConf);
@@ -77,11 +77,11 @@ public abstract class AbstractPatternMapper extends MapReduceBase implements
 	{
 		FSDataInputStream in = fs.open(input); // find the file
 		in.seek(offset);
-
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		String record = reader.readLine().trim();
 		in.close();
 		reader.close();
+		
 
 		return record;
 	}

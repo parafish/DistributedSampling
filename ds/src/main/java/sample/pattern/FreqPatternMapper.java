@@ -10,7 +10,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.Parameters;
+import util.Config;
 
 
 public class FreqPatternMapper extends AbstractPatternMapper
@@ -19,12 +19,12 @@ public class FreqPatternMapper extends AbstractPatternMapper
 	public void map(NullWritable key, Text value, OutputCollector<NullWritable, Text> output, Reporter reporter)
 					throws IOException
 	{
-		String [] pathposition = value.toString().split(Parameters.SepFilePosition);
+		String [] pathposition = value.toString().split(Config.SepFilePosition);
 //		System.out.println("pathposition: " + value.toString());
 		Path inputfilepath = new Path(pathposition[0]);
 
 		long offset = Long.parseLong(pathposition[1]);
-		String[] record = readRecord(fs, inputfilepath, offset).split(Parameters.SepItemsRegex);
+		String[] record = readRecord(fs, inputfilepath, offset).split(Config.SepItemsRegex);
 
 		List<String> pattern = sampleUniformly(Arrays.asList(record));
 

@@ -1,6 +1,6 @@
 package pre;
 
-import static util.Parameters.DEBUG_MODE;
+import static util.Config.DEBUG_MODE;
 
 import java.util.logging.Logger;
 
@@ -11,7 +11,7 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 
 import sample.record.RecordSamplingMapper;
-import util.Parameters;
+import util.Config;
 
 
 /**
@@ -29,7 +29,7 @@ public abstract class AbstractPreMapper extends MapReduceBase implements Mapper<
 {
 	private final static Logger LOGGER = Logger.getLogger(RecordSamplingMapper.class.getName());
 
-	protected int maxRecordLength = Parameters.DEFAULT_RECORD_LENGTH;
+	protected int maxRecordLength = Config.DEFAULT_MAX_RECORD_LENGTH;
 
 	protected String filepath;
 
@@ -38,9 +38,9 @@ public abstract class AbstractPreMapper extends MapReduceBase implements Mapper<
 	public void configure(JobConf jobConf)
 	{
 		filepath = jobConf.get("map.input.file");
-		if (Parameters.DEBUG_MODE)
+		if (Config.DEBUG_MODE)
 			System.out.println("File path: " + filepath);
-		maxRecordLength = jobConf.getInt(Parameters.MAX_RECORD_LENGTH, Parameters.DEFAULT_RECORD_LENGTH);
+		maxRecordLength = jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH);
 		if (DEBUG_MODE)
 			LOGGER.info("Max record length: " + maxRecordLength);
 	}

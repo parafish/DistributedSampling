@@ -16,8 +16,8 @@ import org.apfloat.Apfloat;
 import org.apfloat.ApfloatMath;
 import org.apfloat.Apint;
 
-import util.Parameters;
-import util.ReservoirOneSampler;
+import util.Config;
+import util.sampler.ReservoirOneSampler;
 
 
 public class AreaFreqPatternMapper extends AbstractPatternMapper
@@ -68,7 +68,7 @@ public class AreaFreqPatternMapper extends AbstractPatternMapper
 		Path inputfilepath = new Path(leftPath);
 		long offset = Long.parseLong(value.toString());
 
-		String[] record = readRecord(fs, inputfilepath, offset).split(Parameters.SepItems);
+		String[] record = readRecord(fs, inputfilepath, offset).split(Config.SepItems);
 
 		List<String> pattern = sampleWeighted(Arrays.asList(record));
 
