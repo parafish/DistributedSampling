@@ -11,6 +11,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -231,11 +232,11 @@ public class ChainDriver extends Configured implements Tool
 		// map to index-weight
 		if (phase[0])
 			ChainMapper.addMapper(jobConf, weightMapper.getClass(), Writable.class, Text.class, Writable.class,
-							Text.class, false, jobConf);
+							LongWritable.class, false, jobConf);
 
 		// map to sampled index-weight
 		if (phase[1])
-			ChainMapper.addMapper(jobConf, RecordSamplingMapper.class, Writable.class, Text.class, NullWritable.class,
+			ChainMapper.addMapper(jobConf, RecordSamplingMapper.class, Writable.class, LongWritable.class, NullWritable.class,
 							Text.class, false, jobConf);
 
 		// reducer

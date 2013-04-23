@@ -27,7 +27,7 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
 
 import util.Config;
-import util.sampler.DryRunSampler;
+import util.sampler.DoubleDryRun;
 import discriminativity.DspExceptions.MissingParameterException;
 
 
@@ -56,7 +56,7 @@ public class DiscriminativityRecordSampleMapper extends MapReduceBase implements
 
 	private Map<Path, Long> rightPaths = new HashMap<Path, Long>();
 
-	private List<DryRunSampler> instances = null;
+	private List<DoubleDryRun> instances = null;
 
 	private int skipped = 0;
 	private long count = 0;
@@ -77,10 +77,10 @@ public class DiscriminativityRecordSampleMapper extends MapReduceBase implements
 		rightLineLength = jobConf.getInt(Config.RIGHT_LINE_LENGTH, 0); // if 0, auto-detect
 		nSample = jobConf.getInt(Config.N_SAMPLES, 0);
 
-		instances = new ArrayList<DryRunSampler>(nSample);
+		instances = new ArrayList<DoubleDryRun>(nSample);
 
 		for (int i = 0; i < nSample; i++)
-			instances.add(new DryRunSampler());
+			instances.add(new DoubleDryRun());
 
 		if (rightLineLength == 0)
 			throw new MissingParameterException("Missing parameter: rightLineLength");
@@ -144,7 +144,7 @@ public class DiscriminativityRecordSampleMapper extends MapReduceBase implements
 		// last time, do not forget!
 		joinRightFull();
 
-		for (DryRunSampler sampler : instances)
+		for (DoubleDryRun sampler : instances)
 		{
 			StringBuilder output = new StringBuilder();
 			try
@@ -174,7 +174,7 @@ public class DiscriminativityRecordSampleMapper extends MapReduceBase implements
 		System.out.println("left record buffer size: " + leftRecords.size());
 		for (Map.Entry<String, Set<String>> left : leftRecords.entrySet())
 		{
-			final BigInteger leftWeight = new BigInteger("2").pow((left.getValue().size()));
+			long leftWeight = (long) Math.pow(2, left.getValue().size());
 			System.out.println("left record length: " + left.getValue().size() + "\t" + left.getKey());
 
 			for (Map.Entry<Path, Long> rp : rightPaths.entrySet()) // iterate all the right files
@@ -183,7 +183,7 @@ public class DiscriminativityRecordSampleMapper extends MapReduceBase implements
 				for (long i = 0; i < rp.getValue(); i++)
 				{
 					long offset = rightLineLength * i;
-					for (DryRunSampler sampler : instances)
+					for (DoubleDryRun sampler : instances)
 					{
 						count++;
 						reporter.incrCounter("dps.record.sample", "tuple", 1);
@@ -194,7 +194,7 @@ public class DiscriminativityRecordSampleMapper extends MapReduceBase implements
 							Set<String> rightRecord = readRecordAsSet(fs, rp.getKey(), offset);
 							//							Set<String> rightRecord = new HashSet<String>(Arrays.asList("1", "2", "3", "4", "5"));
 							int intersect = Sets.intersection(left.getValue(), rightRecord).size();
-							BigInteger weight = leftWeight.subtract(new BigInteger("2").pow(intersect));
+							long weight = leftWeight - (long)Math.pow(2, intersect);
 							
 							//String rightIndex = rp.getKey().toString() + Config.SepFilePosition + offset;
 							//String combinedIndex = left.getKey() + Config.SepIndexes + rightIndex;

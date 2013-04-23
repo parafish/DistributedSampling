@@ -1,12 +1,11 @@
 package sample.record;
 
-import static util.Config.DEBUG_MODE;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -17,7 +16,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
 import util.Config;
-import util.sampler.ReservoirOneSampler;
+import util.sampler.DoubleDryRun;
 
 
 /**
@@ -29,13 +28,13 @@ import util.sampler.ReservoirOneSampler;
  * @author zheyi
  * 
  */
-public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writable, Text, NullWritable, Text>
+public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writable, LongWritable, NullWritable, Text>
 {
-	private final static Logger					LOGGER		= Logger.getLogger(RecordSamplingMapper.class.getName());
+	private final static Logger LOGGER = Logger.getLogger(RecordSamplingMapper.class.getName());
 	// instances of A-RES
-	private List<ReservoirOneSampler>			instances	= null;
+	private List<DoubleDryRun> instances = null;
 	// output collector
-	private OutputCollector<NullWritable, Text>	output		= null;
+	private OutputCollector<NullWritable, Text> output = null;
 
 
 	/**
@@ -47,10 +46,10 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	{
 		// get the number of samples
 		int nSamples = Integer.parseInt(jobConf.get(Config.N_SAMPLES));
-		instances = new ArrayList<ReservoirOneSampler>(nSamples);
+		instances = new ArrayList<DoubleDryRun>(nSamples);
 
 		for (int i = 0; i < nSamples; i++)
-			instances.add(new ReservoirOneSampler());
+			instances.add(new DoubleDryRun());
 	}
 
 
@@ -59,10 +58,10 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	 * <code>value</code> is the the weight, in integer.
 	 */
 	@Override
-	public void map(Writable key, Text value, OutputCollector<NullWritable, Text> output, Reporter reporter)
+	public void map(Writable key, LongWritable value, OutputCollector<NullWritable, Text> output, Reporter reporter)
 	{
-		for (ReservoirOneSampler sampler : instances)
-			sampler.sample(value.toString(), key.toString());
+		for (DoubleDryRun sampler : instances)
+			sampler.sample(value.get(), key.toString());
 
 		this.output = output;
 	}
@@ -74,19 +73,19 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	@Override
 	public void close() throws IOException
 	{
-		for (ReservoirOneSampler sampler : instances)
+		for (DoubleDryRun sampler : instances)
 		{
 			StringBuilder output = new StringBuilder();
 			output.append(sampler.getItem().toString()).append(Config.SepIndexWeight).append(sampler.getKey());
 
 			this.output.collect(NullWritable.get(), new Text(output.toString()));
 		}
-		if (DEBUG_MODE)
-			if (ReservoirOneSampler.getPrecision() >= ReservoirOneSampler.maximumPrecision)
-				LOGGER.severe("Precision reaches " + ReservoirOneSampler.getPrecision() + " while the maximum is "
-								+ ReservoirOneSampler.maximumPrecision);
-			else
-				LOGGER.info("Reservior Precisoin: " + ReservoirOneSampler.getPrecision());
+		//		if (DEBUG_MODE)
+		//			if (ReservoirOneSampler.getPrecision() >= ReservoirOneSampler.maximumPrecision)
+		//				LOGGER.severe("Precision reaches " + ReservoirOneSampler.getPrecision() + " while the maximum is "
+		//								+ ReservoirOneSampler.maximumPrecision);
+		//			else
+		//				LOGGER.info("Reservior Precisoin: " + ReservoirOneSampler.getPrecision());
 	}
 
 }

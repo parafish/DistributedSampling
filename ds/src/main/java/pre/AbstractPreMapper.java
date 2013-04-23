@@ -4,6 +4,7 @@ import static util.Config.DEBUG_MODE;
 
 import java.util.logging.Logger;
 
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.JobConf;
@@ -25,7 +26,7 @@ import util.Config;
  * @author zheyi
  * 
  */
-public abstract class AbstractPreMapper extends MapReduceBase implements Mapper<Writable, Text, Writable, Text>
+public abstract class AbstractPreMapper extends MapReduceBase implements Mapper<Writable, Text, Writable, LongWritable>
 {
 	private final static Logger LOGGER = Logger.getLogger(RecordSamplingMapper.class.getName());
 

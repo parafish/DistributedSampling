@@ -1,8 +1,8 @@
 package pre;
 
 import java.io.IOException;
-import java.math.BigInteger;
 
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.OutputCollector;
@@ -29,16 +29,16 @@ public abstract class AbstractSingleMapper extends AbstractPreMapper
 	 *            the array of items
 	 * @return the weight of the array of items
 	 */
-	protected abstract <T> BigInteger calcWeight(T[] items);
+	protected abstract <T> long calcWeight(T[] items);
 
 
 	@Override
-	public void map(Writable key, Text value, OutputCollector<Writable, Text> output, Reporter reporter)
+	public void map(Writable key, Text value, OutputCollector<Writable, LongWritable> output, Reporter reporter)
 					throws IOException
 	{
 		String[] items = value.toString().trim().split(Config.SepItemsRegex);
 		String outputkey = filepath + Config.SepFilePosition + key.toString();
 //			System.out.println("outputkey: " + outputkey);
-		output.collect(new Text(outputkey), new Text(calcWeight(items).toString()));
+		output.collect(new Text(outputkey), new LongWritable(calcWeight(items)));
 	}
 }

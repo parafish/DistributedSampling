@@ -80,7 +80,7 @@ public class ExpanderDriver extends Configured implements Tool
 		expanderConf.setInputFormat(TextInputFormat.class);
 		
 		expanderConf.setMapperClass(ExpanderMapper.class);
-		expanderConf.setNumMapTasks(0);
+		expanderConf.setNumReduceTasks(0);
 		
 		FileOutputFormat.setOutputPath(expanderConf, new Path(output + "/" + inputPath.getName() + "-expanded-" + lineLength));
 		expanderConf.setOutputFormat(TextOutputFormat.class);
