@@ -6,6 +6,8 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mrunit.MapDriver;
 import org.junit.Test;
 
+import freq.FreqMapper;
+
 public class PreMapperTest
 {
 	private long lineNumber = 1234567L;

@@ -1,8 +1,8 @@
-package discriminativity;
+package util;
 
-public class DspExceptions
+public class DpsExceptions
 {
-	private DspExceptions()
+	private DpsExceptions()
 	{
 	};
 

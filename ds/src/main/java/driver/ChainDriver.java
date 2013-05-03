@@ -25,11 +25,12 @@ import org.apache.hadoop.mapred.lib.ChainReducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import freq.FreqMapper;
+
 import pre.AbstractPreMapper;
 import pre.AreaFreqMapper;
 import pre.CartesianProduct.CartesianInputFormat;
 import pre.DiscriminativityMapper;
-import pre.FreqMapper;
 import pre.SquaredFreqMapper;
 import sample.pattern.AbstractPatternMapper;
 import sample.pattern.AreaFreqPatternMapper;

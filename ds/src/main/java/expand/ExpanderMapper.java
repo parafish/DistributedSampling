@@ -12,7 +12,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
 import util.Config;
-import discriminativity.DspExceptions.MissingParameterException;
+import util.DpsExceptions.MissingParameterException;
 
 public class ExpanderMapper extends MapReduceBase implements Mapper<Writable, Text, NullWritable, Text>
 {

@@ -3,6 +3,8 @@ package expand;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -24,6 +26,8 @@ import util.Config;
 
 public class ExpanderDriver extends Configured implements Tool
 {
+	private static final Log LOG = LogFactory.getLog(ExpanderDriver.class);
+
 	private ExpanderDriver()
 	{
 
@@ -69,7 +73,7 @@ public class ExpanderDriver extends Configured implements Tool
 		BufferedReader reader = new BufferedReader(new InputStreamReader(fsInputStream));
 		int lineLength = Integer.parseInt((reader.readLine().trim()));
 		reader.close();
-		System.out.println("line length: " + lineLength);
+		LOG.info("Line length (without '\\r'): " + lineLength);
 
 		
 		// expand each line

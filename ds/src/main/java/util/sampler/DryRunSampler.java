@@ -1,40 +1,30 @@
 package util.sampler;
 
-import java.math.BigInteger;
 import java.util.Random;
 
-import org.apfloat.Apfloat;
-import org.apfloat.FixedPrecisionApfloatHelper;
 
-import util.RNG;
-
-
-public class DryRunSampler
+public class DryRunSampler<T> implements Sampler<T>
 {
-	private Apfloat key = null;
-	private Object item = null;
+	private double key;
+	private T item;
 
-	private final RNG random = new RNG();
-	Apfloat lastRandom = null;
-
-	private static int precision = 20;
-	private static FixedPrecisionApfloatHelper helper = new FixedPrecisionApfloatHelper(precision);
+	private Random random = new Random();
+	private double lastRandom;
 
 
-	public boolean sample(BigInteger w, Object obj)
+	public boolean sample(T obj, double w)
 	{
-		Apfloat floatWeight = new Apfloat(w);
-		if (floatWeight.compareTo(Apfloat.ZERO) <= 0)
+		if (w <= 0)
 			return false;
+		if (lastRandom == 0.0d)
+			lastRandom = random.nextDouble();
 
-		if (lastRandom == null)
-			lastRandom = random.nextApfloat(precision);
+		double exp = 1.0d / w;
+		double candidateKey = Math.pow(lastRandom, exp);
 
-		Apfloat exp = helper.divide(Apfloat.ONE, floatWeight);
-		Apfloat candidateKey = helper.pow(lastRandom, exp);
-		lastRandom = null;
+		lastRandom = 0.0d;
 
-		if (key == null || candidateKey.compareTo(key) > 0) // if the reservoir is not full, or the candidate key is larger
+		if (key == 0.0d || candidateKey > key) // if the reservoir is not full, or the candidate key is larger
 		{
 			key = candidateKey;
 			item = obj;
@@ -45,54 +35,53 @@ public class DryRunSampler
 	}
 
 
-	public boolean sampleDryRun(BigInteger w)
+	public boolean dryRun(double w)
 	{
-		if (key == null)
+		if (key == 0.0d)
 			return true;
 		
-		Apfloat floatWeight = new Apfloat(w);
-		if (floatWeight.compareTo(Apfloat.ZERO) <= 0)
+		if (w <= 0)
 			return false;
 
-		lastRandom = random.nextApfloat(precision);
-		Apfloat exp = helper.divide(Apfloat.ONE, floatWeight);
-		Apfloat candidateKey = helper.pow(lastRandom, exp);
+		lastRandom = random.nextDouble();
 
-		if (candidateKey.compareTo(key) > 0)
+		double exp = 1.0d / w;
+		double candidateKey = Math.pow(lastRandom, exp);
+
+		if (candidateKey > key)
 			return true;
 
 		return false;
 	}
-	
 
-	public String getKey()
+
+	public double getKey()
 	{
-		return key.toString(true);
+		return key;
 	}
 
 
-	public Object getItem()
+	public T getItem()
 	{
 		return item;
 	}
-	
-	public static void main(String [] args)
+
+
+	public static void main(String[] args)
 	{
 		DryRunSampler sampler = new DryRunSampler();
-		BigInteger weight = new BigInteger("2").pow(40);
-		Random random = new Random();
+		long weight = (long)Math.pow(2, 40);
+		System.out.println("weight:  " + weight);
 
 		int times = 340000;
 		long start = System.currentTimeMillis();
-		sampler.sample(weight, " ");
-		double min = 0.0d;
-		for (int i =0; i<times; i++)
+		sampler.sample(" ",weight);
+		for (int i = 0; i < times; i++)
 		{
-			sampler.sampleDryRun(weight);
+			sampler.dryRun(weight);
 		}
 		long end = System.currentTimeMillis();
-		
-		System.out.println("run dry run for " + times + " times, time: " + (end - start) / 1000 + " seconds");
-	}
 
+		System.out.println("run dry run for " + times + " times, time: " + (end - start) + " seconds");
+	}
 }

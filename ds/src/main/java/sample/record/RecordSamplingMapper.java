@@ -16,7 +16,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
 import util.Config;
-import util.sampler.DoubleDryRun;
+import util.sampler.DryRunSampler;
 
 
 /**
@@ -32,7 +32,7 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 {
 	private final static Logger LOGGER = Logger.getLogger(RecordSamplingMapper.class.getName());
 	// instances of A-RES
-	private List<DoubleDryRun> instances = null;
+	private List<DryRunSampler> instances = null;
 	// output collector
 	private OutputCollector<NullWritable, Text> output = null;
 
@@ -46,10 +46,10 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	{
 		// get the number of samples
 		int nSamples = Integer.parseInt(jobConf.get(Config.N_SAMPLES));
-		instances = new ArrayList<DoubleDryRun>(nSamples);
+		instances = new ArrayList<DryRunSampler>(nSamples);
 
 		for (int i = 0; i < nSamples; i++)
-			instances.add(new DoubleDryRun());
+			instances.add(new DryRunSampler());
 	}
 
 
@@ -60,7 +60,7 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	@Override
 	public void map(Writable key, LongWritable value, OutputCollector<NullWritable, Text> output, Reporter reporter)
 	{
-		for (DoubleDryRun sampler : instances)
+		for (DryRunSampler sampler : instances)
 			sampler.sample(value.get(), key.toString());
 
 		this.output = output;
@@ -73,7 +73,7 @@ public class RecordSamplingMapper extends MapReduceBase implements Mapper<Writab
 	@Override
 	public void close() throws IOException
 	{
-		for (DoubleDryRun sampler : instances)
+		for (DryRunSampler sampler : instances)
 		{
 			StringBuilder output = new StringBuilder();
 			output.append(sampler.getItem().toString()).append(Config.SepIndexWeight).append(sampler.getKey());

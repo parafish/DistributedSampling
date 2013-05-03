@@ -9,6 +9,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
 import util.Config;
+import freq.FreqMapper;
 
 
 /**
@@ -41,4 +42,5 @@ public abstract class AbstractSingleMapper extends AbstractPreMapper
 //			System.out.println("outputkey: " + outputkey);
 		output.collect(new Text(outputkey), new LongWritable(calcWeight(items)));
 	}
+	
 }
