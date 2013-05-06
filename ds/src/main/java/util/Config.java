@@ -15,11 +15,9 @@ public class Config
 	// can be explicitly set
 	public static final String MIN_PATTERN_LENGTH = "dps.min.pattern.length";
 	public static final String MAX_RECORD_LENGTH = "dps.max.record.length";
-	public static final String LEFT_BUFFER_LINES = "dps.left.buffer.lines";
-
 	// default values
 	public static final int DEFAULT_MIN_PATTERN_LENGTH = 0; // adjustable
-	public static final int DEFAULT_MAX_RECORD_LENGTH = 60; // adjustable
+	public static final int DEFAULT_MAX_RECORD_LENGTH = 50; // adjustable
 	
 	public static final int DEFAULT_LEFT_BUFFER_LINES = 1000;	// number of lines that a mapper will read once
 		

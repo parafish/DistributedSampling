@@ -2,7 +2,7 @@ package driver;
 
 import org.apache.hadoop.util.ProgramDriver;
 
-import discriminativity.DiscDriver;
+import disc.DiscDriver;
 import expand.ExpanderDriver;
 import freq.FreqDriver;
 

@@ -1,6 +1,7 @@
 package util.sampler;
 
-import java.util.Random;
+import org.apache.commons.math3.random.BitsStreamGenerator;
+import org.apache.commons.math3.random.MersenneTwister;
 
 
 public class AResSampler<T> implements Sampler<T>
@@ -8,14 +9,13 @@ public class AResSampler<T> implements Sampler<T>
 	private double key;
 	private T item;
 
-	private Random random;
+	private BitsStreamGenerator random = new MersenneTwister();
 
 
 	public AResSampler()
 	{
-		random = new Random();
 	}
-	
+
 
 	@Override
 	public boolean sample(T _item, double weight)
@@ -24,10 +24,14 @@ public class AResSampler<T> implements Sampler<T>
 			return false;
 
 		double exp = 1.0d / weight;
-		double candidateKey = Math.pow(random.nextDouble(), exp);
+		double r = random.nextDouble();
+		double candidateKey = Math.pow(r, exp);
 
 		if (candidateKey > key)
 		{
+			if (candidateKey == 1.0d)
+				System.out.println("Key reached 1.0, with record length = " + Math.log(weight) / Math.log(2)
+								+ "random = " + r);
 			key = candidateKey;
 			item = _item;
 			return true;
@@ -36,7 +40,7 @@ public class AResSampler<T> implements Sampler<T>
 		return false;
 	}
 
-	
+
 	@Override
 	public T getItem()
 	{

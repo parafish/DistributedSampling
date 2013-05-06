@@ -1,9 +1,9 @@
-package freq;
+package disc;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,15 +16,17 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
 
 import util.Config;
 import util.DpsExceptions.MissingParameterException;
 import util.Helper;
 
 
-public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable, Text, DoubleWritable, Text>
+public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable, Text, DoubleWritable, Text>
 {
-	private static final Log LOG = LogFactory.getLog(FreqReducer.class);
+
+	private static final Log LOG = LogFactory.getLog(DiscReducer.class);
 
 	private FileSystem fs;
 	private int nSamples;
@@ -34,16 +36,16 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 	private double maxKey = 0.0d;
 
 
+
 	@Override
 	public void configure(JobConf jobConf)
 	{
-		// get the number of samples
 		nSamples = Integer.parseInt(jobConf.get(Config.N_SAMPLES));
 		if (nSamples == 0)
 			throw new MissingParameterException("The sample size is not set");
 
 		minPatternLength = jobConf.getInt(Config.MIN_PATTERN_LENGTH, Config.DEFAULT_MIN_PATTERN_LENGTH);
-		
+
 		try
 		{
 			fs = FileSystem.get(jobConf);
@@ -69,16 +71,26 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 		while (collectedSample < nSamples && values.hasNext())
 		{
 			collectedSample++;
-
 			Text value = values.next();
-
-			String[] pathposition = value.toString().split(Config.SepFilePosition);
-			Path inputfilepath = new Path(pathposition[0]);
-			long offset = Long.parseLong(pathposition[1]);
-			String[] record = Helper.readRecord(fs, inputfilepath, offset).split(Config.SepItemsRegex);
-
-			List<String> pattern = Helper.sampleUniformly(Arrays.asList(record), minPatternLength);
-
+			
+			String[] indices = value.toString().split(Config.SepIndexes);
+			String[] leftIndex = indices[0].split(Config.SepFilePosition);
+			String[] rightindex = indices[1].split(Config.SepFilePosition);
+			
+			Path leftPath = new Path(leftIndex[0]);
+			Path rightPath = new Path(leftIndex[0]);
+			long leftOffset = Long.parseLong(leftIndex[1]);
+			long rightOffset = Long.parseLong(rightindex[1]);
+			
+			Set<String> leftRecord = Helper.readRecordAsSet(fs, leftPath, leftOffset);
+			Set<String> rightRecord = Helper.readRecordAsSet(fs, rightPath, rightOffset);
+			
+			List<String> complement = Helper.sampleUniformly(Sets.difference(leftRecord, rightRecord), 1);
+			List<String> intersect = Helper.sampleUniformly(Sets.intersection(leftRecord, rightRecord), 0);
+			
+			Set<String> pattern = Sets.newTreeSet(complement);
+			pattern.addAll(intersect);
+			
 			if (pattern.size() == 0)
 				return;
 

@@ -1,6 +1,7 @@
 package util.sampler;
 
-import java.util.Random;
+import org.apache.commons.math3.random.BitsStreamGenerator;
+import org.apache.commons.math3.random.MersenneTwister;
 
 
 public class AExpJSampler<T> implements Sampler<T>
@@ -8,7 +9,7 @@ public class AExpJSampler<T> implements Sampler<T>
 	private double key;
 	private T item;
 
-	private Random random = new Random();
+	private BitsStreamGenerator random = new MersenneTwister();
 
 	private boolean startjump = true;
 	private double accumulation;

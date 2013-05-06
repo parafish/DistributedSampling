@@ -54,7 +54,7 @@ public class Helper
 	 * @param items the record, represented in a list of items
 	 * @return the sampled pattern
 	 */
-	public static <T extends Comparable<T>> List<T> sampleUniformly(List<T> items, int minLength)
+	public static <T extends Comparable<T>> List<T> sampleUniformly(Collection<T> items, int minLength)
 	{
 		Random rng = new Random();
 		List<T> pattern = new ArrayList<T>();
