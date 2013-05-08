@@ -2,9 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.tue.cs.capa</groupId>
-	<artifactId>ds</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Distributed Sampling</name>
+	<version>0.0.2-SNAPSHOT</version>
+	<name>Distributed Pattern Sampling</name>
 	<description>a distributed sampling for local patterns</description>
 	<organization>
 		<name>Eindhoven University of Technology</name>
@@ -90,4 +89,5 @@
 			<version>4.3.1</version>
 		</dependency>
 	</dependencies>
+	<artifactId>dps</artifactId>
 </project>
