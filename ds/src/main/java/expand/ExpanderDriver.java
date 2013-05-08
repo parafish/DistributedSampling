@@ -68,6 +68,8 @@ public class ExpanderDriver extends Configured implements Tool
 		longestLineLengthConf.setOutputValueClass(IntWritable.class);
 
 		// run job and print out the statistics
+		if (longestLineLengthConf.getJobName() == "")
+			longestLineLengthConf.setJobName("LongestLineFinder");
 		System.out.println("DistributedPatternSampling (" + longestLineLengthConf.getJobName() + ")");
 		System.out.println("\tInput paths: ");
 		Path inputs[] = FileInputFormat.getInputPaths(longestLineLengthConf);
@@ -107,6 +109,8 @@ public class ExpanderDriver extends Configured implements Tool
 		expanderConf.setOutputValueClass(Text.class);
 
 		// print out and run
+		if (expanderConf.getJobName() == "")
+			expanderConf.setJobName("LineExpander");
 		System.out.println("DistributedPatternSampling (" + expanderConf.getJobName() + ")");
 		System.out.println("\tInput paths: ");
 		inputs = FileInputFormat.getInputPaths(expanderConf);

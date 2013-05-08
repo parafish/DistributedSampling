@@ -75,7 +75,8 @@ public class FreqDriver extends Configured implements Tool
 		jobConf.setOutputValueClass(Text.class);
 
 		// print and run
-
+		if (jobConf.getJobName() == "")
+			jobConf.setJobName("FrequentPatternSampling");
 		System.out.println("DistributedPatternSampling (" + jobConf.getJobName() + ")");
 		System.out.println("\tInput paths: ");
 		Path[] inputs = FileInputFormat.getInputPaths(jobConf);
