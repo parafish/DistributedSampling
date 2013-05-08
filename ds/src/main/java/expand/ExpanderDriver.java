@@ -77,6 +77,9 @@ public class ExpanderDriver extends Configured implements Tool
 			System.out.println("\t\t\t" + inputs[ctr].toString());
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(longestLineLengthConf));
+		System.out.println("\tMappers: " + longestLineLengthConf.getNumMapTasks());
+		System.out.println("\tReducers: " + longestLineLengthConf.getNumReduceTasks());
+		
 		Date startTime = new Date();
 		System.out.println("Job started: " + startTime);
 		JobClient.runJob(longestLineLengthConf);
@@ -119,6 +122,8 @@ public class ExpanderDriver extends Configured implements Tool
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(expanderConf));
 		System.out.println("\tLongest line length (without \\n)): " + lineLength);
+		System.out.println("\tMappers: " + expanderConf.getNumMapTasks());
+		System.out.println("\tReducers: " + expanderConf.getNumReduceTasks());
 		
 		
 		startTime = new Date();

@@ -84,8 +84,9 @@ public class FreqDriver extends Configured implements Tool
 			System.out.println("\t\t\t" + inputs[ctr].toString());
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(jobConf));
-		System.out.println("\tSize of sample: ");
-		System.out.println("\t\t\t" + jobConf.getInt(Config.N_SAMPLES, 0));
+		System.out.println("\tSample:\t" + jobConf.getInt(Config.N_SAMPLES, 0));
+		System.out.println("\tMappers:\t" + jobConf.getNumMapTasks());
+		System.out.println("\tReducers:\t" + jobConf.getNumReduceTasks());
 		System.out.println("\tConfigurations: ");
 		System.out.println("\t\t\tMaiximum record length: "
 						+ jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH));

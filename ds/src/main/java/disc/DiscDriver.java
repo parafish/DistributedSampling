@@ -82,8 +82,9 @@ public class DiscDriver extends Configured implements Tool
 			System.out.println("\t\t\t" + inputs[ctr].toString());
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(jobConf));
-		System.out.println("\tSize of sample: ");
-		System.out.println("\t\t\t" + jobConf.getInt(Config.N_SAMPLES, 0));
+		System.out.println("\tSample:\t" + jobConf.getInt(Config.N_SAMPLES, 0));
+		System.out.println("\tMappers: " + jobConf.getNumMapTasks());
+		System.out.println("\tReducers: " + jobConf.getNumReduceTasks());
 		System.out.println("\tConfigurations: ");
 		System.out.println("\t\t\tRight dataset path: " + jobConf.get(Config.RIGHT_PATH));
 		System.out.println("\t\t\tLength of lines in the right dataset: " + jobConf.getInt(Config.RIGHT_LINE_LENGTH, 0));;
