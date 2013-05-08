@@ -30,8 +30,8 @@ public class AResSampler<T> implements Sampler<T>
 		if (candidateKey > key)
 		{
 			if (candidateKey == 1.0d)
-				System.out.println("Key reached 1.0, with record length = " + Math.log(weight) / Math.log(2)
-								+ "random = " + r);
+				System.out.println("key=" + key + "candidatekey=" + candidateKey + "recordlength="
+								+ (int) (Math.log(weight) / Math.log(2)) + "\trandom=" + r);
 			key = candidateKey;
 			item = _item;
 			return true;

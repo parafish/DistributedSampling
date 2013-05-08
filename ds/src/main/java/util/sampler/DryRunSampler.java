@@ -26,8 +26,8 @@ public class DryRunSampler<T> implements Sampler<T>
 		if (key == 0.0d || candidateKey > key) // if the reservoir is not full, or the candidate key is larger
 		{
 			if (candidateKey == 1.0d)
-				System.out.println("Key reached 1.0, with record length = " + Math.log(w) / Math.log(2) + "random = "
-								+ lastRandom);
+				System.out.println("key=" + key + "candidatekey=" + candidateKey + "recordlength="
+								+ (int) (Math.log(w) / Math.log(2)) + "\trandom=" + lastRandom);
 			key = candidateKey;
 			item = obj;
 			return true;
