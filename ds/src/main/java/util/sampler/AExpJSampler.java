@@ -70,4 +70,12 @@ public class AExpJSampler<T> implements Sampler<T>
 		return key;
 	}
 
+
+	@Override
+	public long getOverflowed()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

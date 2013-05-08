@@ -44,6 +44,7 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 	private String rightDir;
 
 	private OutputCollector<DoubleWritable, Text> output;
+	private Reporter reporter;
 	private FileSystem fs;
 
 	private Map<Path, Long> rightPaths = new HashMap<Path, Long>();
@@ -152,6 +153,7 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 		}
 
 		this.output = output;
+		this.reporter = reporter;
 	}
 
 
@@ -163,6 +165,7 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 			try
 			{
 				this.output.collect(new DoubleWritable(sampler.getKey()), new Text(sampler.getItem()));
+				this.reporter.incrCounter(DpsCounters.OVERFLOWED_TIMES, sampler.getOverflowed());
 			}
 			catch (NullPointerException exception)
 			{

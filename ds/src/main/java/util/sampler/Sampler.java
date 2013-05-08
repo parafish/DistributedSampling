@@ -11,5 +11,6 @@ public interface Sampler <T>
 	
 	public T getItem();
 	public double getKey();
+	public long getOverflowed();
 
 }

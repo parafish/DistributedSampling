@@ -11,6 +11,7 @@ public class DryRunSampler<T> implements Sampler<T>
 
 	private BitsStreamGenerator random = new MersenneTwister();
 	private double lastRandom;
+	private long overflowed;
 
 
 	public boolean sample(T obj, double w)
@@ -26,8 +27,11 @@ public class DryRunSampler<T> implements Sampler<T>
 		if (key == 0.0d || candidateKey > key) // if the reservoir is not full, or the candidate key is larger
 		{
 			if (candidateKey == 1.0d)
+			{
 				System.out.println("key=" + key + "candidatekey=" + candidateKey + "recordlength="
 								+ (int) (Math.log(w) / Math.log(2)) + "\trandom=" + lastRandom);
+				overflowed ++ ;
+			}
 			key = candidateKey;
 			item = obj;
 			return true;
@@ -58,33 +62,23 @@ public class DryRunSampler<T> implements Sampler<T>
 	}
 
 
+	@Override
 	public double getKey()
 	{
 		return key;
 	}
 
 
+	@Override
 	public T getItem()
 	{
 		return item;
 	}
 
 
-	public static void main(String[] args)
+	@Override
+	public long getOverflowed()
 	{
-		DryRunSampler sampler = new DryRunSampler();
-		long weight = (long) Math.pow(2, 40);
-		System.out.println("weight:  " + weight);
-
-		int times = 340000;
-		long start = System.currentTimeMillis();
-		sampler.sample(" ", weight);
-		for (int i = 0; i < times; i++)
-		{
-			sampler.dryRun(weight);
-		}
-		long end = System.currentTimeMillis();
-
-		System.out.println("run dry run for " + times + " times, time: " + (end - start) + " seconds");
+		return overflowed;
 	}
 }

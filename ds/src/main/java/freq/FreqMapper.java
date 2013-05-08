@@ -16,6 +16,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
 import util.Config;
+import util.DpsCounters;
 import util.DpsExceptions.MissingParameterException;
 import util.sampler.AResSampler;
 import util.sampler.Sampler;
@@ -38,6 +39,7 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 	private String filePath;
 	private List<Sampler<String>> instances;
 	private OutputCollector<DoubleWritable, Text> output;
+	private Reporter reporter;
 	
 	private int maxRecordLength;
 
@@ -74,6 +76,7 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 			sampler.sample(fileIndex, weight);
 		
 		this.output = output;
+		this.reporter = reporter;
 	}
 
 	
@@ -86,6 +89,7 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 		for (Sampler<String> sampler : instances)
 		{
 			this.output.collect(new DoubleWritable(sampler.getKey()), new Text(sampler.getItem()));
+			this.reporter.incrCounter(DpsCounters.OVERFLOWED_TIMES, sampler.getOverflowed());
 		}
 	}
 

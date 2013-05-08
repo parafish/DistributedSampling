@@ -10,6 +10,7 @@ public class AResSampler<T> implements Sampler<T>
 	private T item;
 
 	private BitsStreamGenerator random = new MersenneTwister();
+	private long overflowed;
 
 
 	public AResSampler()
@@ -30,8 +31,11 @@ public class AResSampler<T> implements Sampler<T>
 		if (candidateKey > key)
 		{
 			if (candidateKey == 1.0d)
+			{
 				System.out.println("key=" + key + "candidatekey=" + candidateKey + "recordlength="
 								+ (int) (Math.log(weight) / Math.log(2)) + "\trandom=" + r);
+				overflowed ++;
+			}
 			key = candidateKey;
 			item = _item;
 			return true;
@@ -52,6 +56,12 @@ public class AResSampler<T> implements Sampler<T>
 	public double getKey()
 	{
 		return key;
+	}
+	
+	@Override
+	public long getOverflowed()
+	{
+		return overflowed;
 	}
 
 }
