@@ -25,7 +25,7 @@ public class SamplingDriver
 		{
 			e.printStackTrace();
 		}
-	    System.exit(exitCode);
+		System.exit(exitCode);
 	}
 
 }

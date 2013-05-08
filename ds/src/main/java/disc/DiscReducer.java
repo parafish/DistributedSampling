@@ -78,7 +78,7 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 			String[] rightindex = indices[1].split(Config.SepFilePosition);
 			
 			Path leftPath = new Path(leftIndex[0]);
-			Path rightPath = new Path(leftIndex[0]);
+			Path rightPath = new Path(rightindex[0]);
 			long leftOffset = Long.parseLong(leftIndex[1]);
 			long rightOffset = Long.parseLong(rightindex[1]);
 			

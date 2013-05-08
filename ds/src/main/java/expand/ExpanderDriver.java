@@ -2,6 +2,7 @@ package expand;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +29,7 @@ public class ExpanderDriver extends Configured implements Tool
 {
 	private static final Log LOG = LogFactory.getLog(ExpanderDriver.class);
 
+
 	private ExpanderDriver()
 	{
 
@@ -47,7 +49,7 @@ public class ExpanderDriver extends Configured implements Tool
 		String input = args[0];
 		Path inputPath = new Path(input);
 		String output = args[1];
-		
+
 		Path lineLengthPath = new Path(output + "/longest-line-length");
 
 		// find the longest line length
@@ -65,7 +67,20 @@ public class ExpanderDriver extends Configured implements Tool
 		longestLineLengthConf.setOutputKeyClass(NullWritable.class);
 		longestLineLengthConf.setOutputValueClass(IntWritable.class);
 
+		// run job and print out the statistics
+		System.out.println("DistributedPatternSampling (" + longestLineLengthConf.getJobName() + ")");
+		System.out.println("\tInput paths: ");
+		Path inputs[] = FileInputFormat.getInputPaths(longestLineLengthConf);
+		for (int ctr = 0; ctr < inputs.length; ctr++)
+			System.out.println("\t\t\t" + inputs[ctr].toString());
+		System.out.println("\tOutput path: ");
+		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(longestLineLengthConf));
+		Date startTime = new Date();
+		System.out.println("Job started: " + startTime);
 		JobClient.runJob(longestLineLengthConf);
+		Date end_time = new Date();
+		System.out.println("Job ended: " + end_time);
+		System.out.println("The job took " + (end_time.getTime() - startTime.getTime()) / (float) 1000.0 + " seconds.");
 
 		// fetch the line length
 		FileSystem fs = FileSystem.get(getConf());
@@ -75,24 +90,40 @@ public class ExpanderDriver extends Configured implements Tool
 		reader.close();
 		LOG.info("Line length (without '\\r'): " + lineLength);
 
-		
 		// expand each line
 		JobConf expanderConf = new JobConf(getConf(), getClass());
 		expanderConf.setInt(Config.LONGEST_LINE_LENGTH, lineLength);
-		
+
 		FileInputFormat.addInputPath(expanderConf, new Path(input));
 		expanderConf.setInputFormat(TextInputFormat.class);
-		
+
 		expanderConf.setMapperClass(ExpanderMapper.class);
 		expanderConf.setNumReduceTasks(0);
-		
-		FileOutputFormat.setOutputPath(expanderConf, new Path(output + "/" + inputPath.getName() + "-expanded-" + lineLength));
+
+		FileOutputFormat.setOutputPath(expanderConf, new Path(output + "/" + inputPath.getName() + "-expanded-"
+						+ (lineLength + 1)));
 		expanderConf.setOutputFormat(TextOutputFormat.class);
 		expanderConf.setOutputKeyClass(NullWritable.class);
 		expanderConf.setOutputValueClass(Text.class);
+
+		// print out and run
+		System.out.println("DistributedPatternSampling (" + expanderConf.getJobName() + ")");
+		System.out.println("\tInput paths: ");
+		inputs = FileInputFormat.getInputPaths(expanderConf);
+		for (int ctr = 0; ctr < inputs.length; ctr++)
+			System.out.println("\t\t\t" + inputs[ctr].toString());
+		System.out.println("\tOutput path: ");
+		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(expanderConf));
+		System.out.println("\tLongest line length (without \\n)): " + lineLength);
 		
+		
+		startTime = new Date();
+		System.out.println("Job started: " + startTime);
 		JobClient.runJob(expanderConf);
-		
+		end_time = new Date();
+		System.out.println("Job ended: " + end_time);
+		System.out.println("The job took " + (end_time.getTime() - startTime.getTime()) / (float) 1000.0 + " seconds.");
+
 		return 0;
 	}
 

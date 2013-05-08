@@ -1,5 +1,7 @@
 package disc;
 
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configured;
@@ -64,13 +66,38 @@ public class DiscDriver extends Configured implements Tool
 		jobConf.setMapperClass(DiscMapper.class);
 
 		jobConf.setOutputKeyComparatorClass(DecreasingDoubleWritableComparator.class);
-		
+
 		jobConf.setReducerClass(DiscReducer.class);
 		jobConf.setOutputFormat(TextOutputFormat.class);
 		jobConf.setOutputKeyClass(DoubleWritable.class);
 		jobConf.setOutputValueClass(Text.class);
 
+		// print and run
+		if (jobConf.getJobName() == "")
+			jobConf.setJobName("DiscriminativityPatternSampling");
+		System.out.println("DistributedPatternSampling (" + jobConf.getJobName() + ")");
+		System.out.println("\tInput paths: ");
+		Path[] inputs = FileInputFormat.getInputPaths(jobConf);
+		for (int ctr = 0; ctr < inputs.length; ctr++)
+			System.out.println("\t\t\t" + inputs[ctr].toString());
+		System.out.println("\tOutput path: ");
+		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(jobConf));
+		System.out.println("\tSize of sample: ");
+		System.out.println("\t\t\t" + jobConf.getInt(Config.N_SAMPLES, 0));
+		System.out.println("\tConfigurations: ");
+		System.out.println("\t\t\tRight dataset path: " + jobConf.get(Config.RIGHT_PATH));
+		System.out.println("\t\t\tLength of lines in the right dataset: " + jobConf.getInt(Config.RIGHT_LINE_LENGTH, 0));;
+		System.out.println("\t\t\tMaiximum record length: "
+						+ jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH));
+		System.out.println("\t\t\tMinimum Pattern length: "
+						+ jobConf.getInt(Config.MIN_PATTERN_LENGTH, Config.DEFAULT_MIN_PATTERN_LENGTH));
+
+		Date startTime = new Date();
+		System.out.println("Job started: " + startTime);
 		JobClient.runJob(jobConf);
+		Date end_time = new Date();
+		System.out.println("Job ended: " + end_time);
+		System.out.println("The job took " + (end_time.getTime() - startTime.getTime()) / (float) 1000.0 + " seconds.");
 		return 0;
 	}
 
