@@ -1,4 +1,4 @@
-package expand;
+package edu.tue.cs.capa.dps.expand;
 
 import java.io.IOException;
 

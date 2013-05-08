@@ -1,4 +1,4 @@
-package disc;
+package edu.tue.cs.capa.dps.disc;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -18,9 +18,10 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
 
-import util.Config;
-import util.DpsExceptions.MissingParameterException;
-import util.Helper;
+import edu.tue.cs.capa.dps.util.Config;
+import edu.tue.cs.capa.dps.util.Helper;
+import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
+
 
 
 public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable, Text, DoubleWritable, Text>

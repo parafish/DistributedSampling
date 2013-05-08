@@ -1,4 +1,4 @@
-package freq;
+package edu.tue.cs.capa.dps.disc;
 
 import java.util.Date;
 
@@ -18,38 +18,40 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import util.Config;
-import util.Helper.DecreasingDoubleWritableComparator;
+import edu.tue.cs.capa.dps.util.Config;
+import edu.tue.cs.capa.dps.util.Helper.DecreasingDoubleWritableComparator;
 
 
-public class FreqDriver extends Configured implements Tool
+
+public class DiscDriver extends Configured implements Tool
 {
-	private static final Log LOG = LogFactory.getLog(FreqDriver.class);
+	private static final Log LOG = LogFactory.getLog(DiscDriver.class);
 
 	private boolean ow = true;
 
 
-	private FreqDriver()
+	private DiscDriver()
 	{
-
 	}
 
 
 	@Override
 	public int run(String[] args) throws Exception
 	{
-		if (args.length < 3)
+		if (args.length < 4)
 		{
-			System.out.println("freq <input> <output> <samples>");
+			System.out.println("disc <inPosDir> <inNegDir> <output> <samples>");
 			ToolRunner.printGenericCommandUsage(System.out);
 			return -1;
 		}
 
 		Path leftInput = new Path(args[0]);
-		Path output = new Path(args[1]);
-		int nSamples = Integer.parseInt(args[2]);
+		Path rightInput = new Path(args[1]);
+		Path output = new Path(args[2]);
+		int nSamples = Integer.parseInt(args[3]);
 
 		JobConf jobConf = new JobConf(getConf(), getClass());
+		jobConf.set(Config.RIGHT_PATH, rightInput.toString());
 		jobConf.set(Config.N_SAMPLES, String.valueOf(nSamples));
 
 		if (ow) // delete the output
@@ -62,21 +64,18 @@ public class FreqDriver extends Configured implements Tool
 		FileOutputFormat.setOutputPath(jobConf, output);
 
 		jobConf.setInputFormat(TextInputFormat.class);
-		jobConf.setMapperClass(FreqMapper.class);
-		jobConf.setMapOutputKeyClass(DoubleWritable.class);
-		jobConf.setMapOutputValueClass(Text.class);
+		jobConf.setMapperClass(DiscMapper.class);
 
 		jobConf.setOutputKeyComparatorClass(DecreasingDoubleWritableComparator.class);
 
-		jobConf.setNumReduceTasks(1);
-		jobConf.setReducerClass(FreqReducer.class);
+		jobConf.setReducerClass(DiscReducer.class);
 		jobConf.setOutputFormat(TextOutputFormat.class);
 		jobConf.setOutputKeyClass(DoubleWritable.class);
 		jobConf.setOutputValueClass(Text.class);
 
 		// print and run
 		if (jobConf.getJobName() == "")
-			jobConf.setJobName("FrequentPatternSampling");
+			jobConf.setJobName("DiscriminativityPatternSampling");
 		System.out.println("DistributedPatternSampling (" + jobConf.getJobName() + ")");
 		System.out.println("\tInput paths: ");
 		Path[] inputs = FileInputFormat.getInputPaths(jobConf);
@@ -85,9 +84,12 @@ public class FreqDriver extends Configured implements Tool
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(jobConf));
 		System.out.println("\tSample:\t" + jobConf.getInt(Config.N_SAMPLES, 0));
-		System.out.println("\tMappers:\t" + jobConf.getNumMapTasks());
-		System.out.println("\tReducers:\t" + jobConf.getNumReduceTasks());
+		System.out.println("\tSample:\t" + jobConf.getInt(Config.N_SAMPLES, 0));
+		System.out.println("\tMappers: " + jobConf.getNumMapTasks());
+		System.out.println("\tReducers: " + jobConf.getNumReduceTasks());
 		System.out.println("\tConfigurations: ");
+		System.out.println("\t\t\tRight dataset path: " + jobConf.get(Config.RIGHT_PATH));
+		System.out.println("\t\t\tLength of lines in the right dataset: " + jobConf.getInt(Config.RIGHT_LINE_LENGTH, 0));;
 		System.out.println("\t\t\tMaiximum record length: "
 						+ jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH));
 		System.out.println("\t\t\tMinimum Pattern length: "
@@ -103,12 +105,16 @@ public class FreqDriver extends Configured implements Tool
 	}
 
 
+	/**
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args)
 	{
 		int exitCode;
 		try
 		{
-			exitCode = ToolRunner.run(new FreqDriver(), args);
+			exitCode = ToolRunner.run(new DiscDriver(), args);
 		}
 		catch (Exception e)
 		{

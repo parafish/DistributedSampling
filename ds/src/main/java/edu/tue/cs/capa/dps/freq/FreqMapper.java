@@ -1,4 +1,4 @@
-package freq;
+package edu.tue.cs.capa.dps.freq;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,11 +15,12 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.Config;
-import util.DpsCounters;
-import util.DpsExceptions.MissingParameterException;
-import util.sampler.AResSampler;
-import util.sampler.Sampler;
+import edu.tue.cs.capa.dps.util.Config;
+import edu.tue.cs.capa.dps.util.DpsCounters;
+import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
+import edu.tue.cs.capa.dps.util.sampler.AResSampler;
+import edu.tue.cs.capa.dps.util.sampler.Sampler;
+
 
 
 /**

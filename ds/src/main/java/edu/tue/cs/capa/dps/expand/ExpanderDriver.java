@@ -1,4 +1,4 @@
-package expand;
+package edu.tue.cs.capa.dps.expand;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,7 +22,8 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import util.Config;
+import edu.tue.cs.capa.dps.util.Config;
+
 
 
 public class ExpanderDriver extends Configured implements Tool

@@ -1,10 +1,10 @@
-package driver;
+package edu.tue.cs.capa.dps.driver;
 
 import org.apache.hadoop.util.ProgramDriver;
 
-import disc.DiscDriver;
-import expand.ExpanderDriver;
-import freq.FreqDriver;
+import edu.tue.cs.capa.dps.disc.DiscDriver;
+import edu.tue.cs.capa.dps.expand.ExpanderDriver;
+import edu.tue.cs.capa.dps.freq.FreqDriver;
 
 
 public class SamplingDriver

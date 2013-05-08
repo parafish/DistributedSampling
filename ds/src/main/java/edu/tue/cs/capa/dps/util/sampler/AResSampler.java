@@ -1,4 +1,4 @@
-package util.sampler;
+package edu.tue.cs.capa.dps.util.sampler;
 
 import org.apache.commons.math3.random.BitsStreamGenerator;
 import org.apache.commons.math3.random.MersenneTwister;

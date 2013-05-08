@@ -1,4 +1,4 @@
-package freq;
+package edu.tue.cs.capa.dps.freq;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,9 +17,10 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
-import util.Config;
-import util.DpsExceptions.MissingParameterException;
-import util.Helper;
+import edu.tue.cs.capa.dps.util.Config;
+import edu.tue.cs.capa.dps.util.Helper;
+import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
+
 
 
 public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable, Text, DoubleWritable, Text>
