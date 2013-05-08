@@ -28,11 +28,11 @@ public class AResSampler<T> implements Sampler<T>
 		double r = random.nextDouble();
 		double candidateKey = Math.pow(r, exp);
 
-		if (candidateKey > key)
+		if (candidateKey >= key)
 		{
 			if (candidateKey == 1.0d)
 			{
-				System.out.println("key=" + key + "candidatekey=" + candidateKey + "recordlength="
+				System.out.println("key=" + key + "\tcandidatekey=" + candidateKey + "\trecordlength="
 								+ (int) (Math.log(weight) / Math.log(2)) + "\trandom=" + r);
 				overflowed ++;
 			}

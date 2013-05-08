@@ -24,7 +24,7 @@ public class DryRunSampler<T> implements Sampler<T>
 		double exp = 1.0d / w;
 		double candidateKey = Math.pow(lastRandom, exp);
 
-		if (key == 0.0d || candidateKey > key) // if the reservoir is not full, or the candidate key is larger
+		if (candidateKey >= key) // if the reservoir is not full, or the candidate key is larger
 		{
 			if (candidateKey == 1.0d)
 			{
@@ -55,7 +55,7 @@ public class DryRunSampler<T> implements Sampler<T>
 		double exp = 1.0d / w;
 		double candidateKey = Math.pow(lastRandom, exp);
 
-		if (candidateKey > key)
+		if (candidateKey >= key)
 			return true;
 
 		return false;
