@@ -18,8 +18,8 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.tue.cs.capa.dps.util.Config;
-import edu.tue.cs.capa.dps.util.Helper.DecreasingDoubleWritableComparator;
+import edu.tue.cs.capa.util.Config;
+import edu.tue.cs.capa.util.Helper.DecreasingDoubleWritableComparator;
 
 
 
@@ -83,7 +83,6 @@ public class DiscDriver extends Configured implements Tool
 			System.out.println("\t\t\t" + inputs[ctr].toString());
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(jobConf));
-		System.out.println("\tSample:\t" + jobConf.getInt(Config.N_SAMPLES, 0));
 		System.out.println("\tSample:\t" + jobConf.getInt(Config.N_SAMPLES, 0));
 		System.out.println("\tMappers: " + jobConf.getNumMapTasks());
 		System.out.println("\tReducers: " + jobConf.getNumReduceTasks());

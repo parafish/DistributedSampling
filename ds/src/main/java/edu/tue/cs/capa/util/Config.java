@@ -1,4 +1,4 @@
-package edu.tue.cs.capa.dps.util;
+package edu.tue.cs.capa.util;
 
 public class Config
 {

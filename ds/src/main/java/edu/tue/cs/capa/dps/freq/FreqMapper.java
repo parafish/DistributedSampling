@@ -15,11 +15,11 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.tue.cs.capa.dps.util.Config;
-import edu.tue.cs.capa.dps.util.DpsCounters;
-import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
-import edu.tue.cs.capa.dps.util.sampler.AResSampler;
-import edu.tue.cs.capa.dps.util.sampler.Sampler;
+import edu.tue.cs.capa.util.Config;
+import edu.tue.cs.capa.util.DpsCounters;
+import edu.tue.cs.capa.util.DpsExceptions.MissingParameterException;
+import edu.tue.cs.capa.util.sampler.AResSampler;
+import edu.tue.cs.capa.util.sampler.Sampler;
 
 
 

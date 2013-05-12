@@ -22,11 +22,11 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
 
-import edu.tue.cs.capa.dps.util.Config;
-import edu.tue.cs.capa.dps.util.DpsCounters;
-import edu.tue.cs.capa.dps.util.Helper;
-import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
-import edu.tue.cs.capa.dps.util.sampler.DryRunSampler;
+import edu.tue.cs.capa.util.Config;
+import edu.tue.cs.capa.util.DpsCounters;
+import edu.tue.cs.capa.util.Helper;
+import edu.tue.cs.capa.util.DpsExceptions.MissingParameterException;
+import edu.tue.cs.capa.util.sampler.DryRunSampler;
 
 
 

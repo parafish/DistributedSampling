@@ -1,4 +1,4 @@
-package edu.tue.cs.capa.dps.util.sampler;
+package edu.tue.cs.capa.util.sampler;
 
 /**
  * weighted random sampling
