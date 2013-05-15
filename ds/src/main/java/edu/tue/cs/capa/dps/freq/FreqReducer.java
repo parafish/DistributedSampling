@@ -17,9 +17,9 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
-import edu.tue.cs.capa.util.Config;
-import edu.tue.cs.capa.util.Helper;
-import edu.tue.cs.capa.util.DpsExceptions.MissingParameterException;
+import edu.tue.cs.capa.dps.util.Config;
+import edu.tue.cs.capa.dps.util.Helper;
+import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
 
 
 

@@ -22,7 +22,7 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.tue.cs.capa.util.Config;
+import edu.tue.cs.capa.dps.util.Config;
 
 
 
