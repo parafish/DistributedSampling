@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.tue.cs.capa</groupId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<name>Distributed Pattern Sampling</name>
 	<description>a distributed sampling for local patterns</description>
 	<organization>
@@ -17,7 +17,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>driver.ChainDriver</mainClass>
+							<mainClass>edu.tue.cs.capa.dps.driver.SamplingDriver</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
