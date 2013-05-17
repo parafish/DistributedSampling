@@ -1,0 +1,90 @@
+Direct Out-of-memory Distributed Parallel Frequent Pattern Mining 
+================================================================================
+
+This software is the implementation for the algorithm described in 
+"Direct Out-of-memory Distributed Parallel Frequent Pattern Mining"
+
+by 
+Jeroen De Knijf, Eindhoven University of Technology, j.d.knijf@tue.nl
+Zheyi Rong, Eindhoven University of Techonology, z.rong@student.tue.nl
+
+QUICK START
+--------------------
+1. Prerequisites
+	The only requirement for running the code is a Hadoop cluster, with either
+	new or old APIs. The code works with Hadoop-0.20.0 or higher.
+
+2. Build
+	$ mvn clean compile assembly:single 
+
+3. Frequency-based sampling
+	Below we show how our frequency-based sampling runs on a small dataset (iris).
+	The same procedure applies to arbitrarily large datasets in the fimi format.
+	If one wants to control the number of mappers, the generic parameters
+		-D mapred.min.split.size
+		-D mapred.map.tasks
+	should be considered.
+
+3.1 Upload the fimi-format data
+	$ hadoop fs -put \
+		demo/iris.dat	\
+		dps/iris.dat
+
+3.2 Sample 100 samples from the uploaded data
+	$ hadoop jar \
+		target/dps-0.0.2-jar-with-dependencies.jar	\
+		freq	\
+		dps/iris.dat	\
+		dps/output/freq-iris	\
+		100
+
+3.3 See the sample
+	$ hadoop fs -cat dps/output/freq-iris/part-00000
+	
+	The first column is the key of the sample records, 
+	and second column is the sampled patterns.
+
+4. Discriminativity-based sampling
+	Below we show how our discriminativity-based sampling runs on a small 
+	dataset (iris).	
+	For simplicity, the positive set and the negative set are the same ---
+	the entire iris dataset.
+	In real practice, the positive set and the negative set should be two
+	different directories or files.
+
+4.1 Upload the fimi-format data
+	$ hadoop fs -put 	\
+		demo/iris.dat	\
+		dps/iris/positive	
+	$ hadoop fs -put	\
+		demo/iris.dat	\
+		dps/iris/negative
+
+4.2 Expand the negative (or positive) set
+	$ hadoop jar	\
+		target/dps-0.0.2-jar-with-dependencies.jar	\
+		expand	\
+		dps/iris/negative	\
+		dps/iris/negative-expanded	
+
+4.3 Sample 100 samples from the uploaded data
+	$ hadoop jar	\
+		target/dps-0.0.2-jar-with-dependencies.jar	\
+		disc	\
+		-D dps.right.line.length=13	\
+		dps/iris/positive	\
+		dps/iris/negative-expanded/negative-expanded-13	\
+		dps/output/disc-iris	\
+		100
+
+	Please notice that the parameter 
+		-D dps.right.line.length 
+	must be set to the actual line length of the negative set.
+	This length is indicated by the last number in the directory name 
+		dps/iris/negative-expanded-13
+
+4.4 See the sample
+	$ hadoop fs -cat dps/output/disc-iris/part-00000
+
+	The first column is the key of the sample tuples, 
+	and second column is the sampled patterns.
