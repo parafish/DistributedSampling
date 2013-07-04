@@ -17,10 +17,11 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
+import org.apache.hadoop.util.StringUtils;
 
 import edu.tue.cs.capa.dps.util.Config;
-import edu.tue.cs.capa.dps.util.Helper;
 import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
+import edu.tue.cs.capa.dps.util.Helper;
 
 
 
@@ -36,6 +37,7 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 	private int minPatternLength;
 	private double maxKey = 0.0d;
 
+	private String delimiter;
 
 
 	@Override
@@ -47,6 +49,9 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 
 		minPatternLength = jobConf.getInt(Config.MIN_PATTERN_LENGTH, Config.DEFAULT_MIN_PATTERN_LENGTH);
 
+		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
+		LOG.info("Item delimiter: " + delimiter);
+		
 		try
 		{
 			fs = FileSystem.get(jobConf);
@@ -83,8 +88,8 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 			long leftOffset = Long.parseLong(leftIndex[1]);
 			long rightOffset = Long.parseLong(rightindex[1]);
 			
-			Set<String> leftRecord = Helper.readRecordAsSet(fs, leftPath, leftOffset);
-			Set<String> rightRecord = Helper.readRecordAsSet(fs, rightPath, rightOffset);
+			Set<String> leftRecord = Helper.readRecordAsSet(fs, leftPath, leftOffset, delimiter);
+			Set<String> rightRecord = Helper.readRecordAsSet(fs, rightPath, rightOffset, delimiter);
 			
 			List<String> complement = Helper.sampleUniformly(Sets.difference(leftRecord, rightRecord), 1);
 			List<String> intersect = Helper.sampleUniformly(Sets.intersection(leftRecord, rightRecord), 0);
@@ -95,7 +100,7 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 			if (pattern.size() == 0)
 				return;
 
-			output.collect(key, new Text(Helper.composePattern(pattern)));
+			output.collect(key, new Text(StringUtils.join(delimiter, pattern)));
 		}
 	}
 

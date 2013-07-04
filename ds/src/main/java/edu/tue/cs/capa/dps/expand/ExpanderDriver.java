@@ -94,7 +94,7 @@ public class ExpanderDriver extends Configured implements Tool
 		BufferedReader reader = new BufferedReader(new InputStreamReader(fsInputStream));
 		int lineLength = Integer.parseInt((reader.readLine().trim()));
 		reader.close();
-		LOG.info("Line length (without '\\r'): " + lineLength);
+		LOG.info("Line length (without '\\n'): " + lineLength);
 
 		// expand each line
 		JobConf expanderConf = new JobConf(getConf(), getClass());
@@ -107,7 +107,7 @@ public class ExpanderDriver extends Configured implements Tool
 		expanderConf.setNumReduceTasks(0);
 
 		FileOutputFormat.setOutputPath(expanderConf, new Path(output + "/" + inputPath.getName() + "-expanded-"
-						+ (lineLength + 1)));
+						+ (lineLength)));
 		expanderConf.setOutputFormat(TextOutputFormat.class);
 		expanderConf.setOutputKeyClass(NullWritable.class);
 		expanderConf.setOutputValueClass(Text.class);

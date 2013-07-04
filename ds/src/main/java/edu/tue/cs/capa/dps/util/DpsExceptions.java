@@ -36,10 +36,39 @@ public class DpsExceptions
 			super(s, t);
 		}
 	}
-	
+
+
 	public static class NonFixedLineLengthException extends RuntimeException
 	{
-		
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+
+		public NonFixedLineLengthException()
+		{
+			super();
+		}
+
+
+		public NonFixedLineLengthException(String s)
+		{
+			super(s);
+		}
+
+
+		public NonFixedLineLengthException(Throwable t)
+		{
+			super(t);
+		}
+
+
+		public NonFixedLineLengthException(String s, Throwable t)
+		{
+			super(s, t);
+		}
 	}
 
 }

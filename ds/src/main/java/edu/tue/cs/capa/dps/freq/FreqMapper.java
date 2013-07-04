@@ -43,6 +43,7 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 	private Reporter reporter;
 	
 	private int maxRecordLength;
+	private String delimiter;
 
 
 	@Override
@@ -58,6 +59,10 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 		maxRecordLength = jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH);
 		LOG.info("Max record length: " + maxRecordLength);
 		
+		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
+		LOG.info("Item delimiter: " + delimiter);
+
+		
 		instances = new ArrayList<Sampler<String>>(nSamples);
 		for (int i = 0; i < nSamples; i++)
 			instances.add(new AResSampler<String>());
@@ -68,7 +73,7 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 	public void map(Writable key, Text value, OutputCollector<DoubleWritable, Text> output, Reporter reporter)
 					throws IOException
 	{
-		String[] items = value.toString().trim().split(Config.SepItemsRegex);
+		String[] items = value.toString().trim().split(delimiter);
 		int exp = items.length > maxRecordLength ? maxRecordLength : items.length;
 		double weight = Math.pow(2, exp);
 		String fileIndex = filePath + Config.SepFilePosition + key.toString();

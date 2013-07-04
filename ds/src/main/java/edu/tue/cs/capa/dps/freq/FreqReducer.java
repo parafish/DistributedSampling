@@ -16,10 +16,11 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.StringUtils;
 
 import edu.tue.cs.capa.dps.util.Config;
-import edu.tue.cs.capa.dps.util.Helper;
 import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
+import edu.tue.cs.capa.dps.util.Helper;
 
 
 
@@ -34,6 +35,7 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 	private int minPatternLength;
 	private double maxKey = 0.0d;
 
+	private String delimiter;
 
 	@Override
 	public void configure(JobConf jobConf)
@@ -44,6 +46,9 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 			throw new MissingParameterException("The sample size is not set");
 
 		minPatternLength = jobConf.getInt(Config.MIN_PATTERN_LENGTH, Config.DEFAULT_MIN_PATTERN_LENGTH);
+		
+		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
+		LOG.info("Item delimiter: " + delimiter);
 		
 		try
 		{
@@ -76,14 +81,14 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 			String[] pathposition = value.toString().split(Config.SepFilePosition);
 			Path inputfilepath = new Path(pathposition[0]);
 			long offset = Long.parseLong(pathposition[1]);
-			String[] record = Helper.readRecord(fs, inputfilepath, offset).split(Config.SepItemsRegex);
+			String[] record = Helper.readRecord(fs, inputfilepath, offset).split(delimiter);
 
 			List<String> pattern = Helper.sampleUniformly(Arrays.asList(record), minPatternLength);
 
 			if (pattern.size() == 0)
 				return;
 
-			output.collect(key, new Text(Helper.composePattern(pattern)));
+			output.collect(key, new Text(StringUtils.join(delimiter, pattern)));
 		}
 	}
 

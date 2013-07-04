@@ -24,8 +24,8 @@ import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
 
 import edu.tue.cs.capa.dps.util.Config;
 import edu.tue.cs.capa.dps.util.DpsCounters;
-import edu.tue.cs.capa.dps.util.Helper;
 import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
+import edu.tue.cs.capa.dps.util.Helper;
 import edu.tue.cs.capa.dps.util.sampler.DryRunSampler;
 
 
@@ -43,6 +43,8 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 
 	private String leftFile;
 	private String rightDir;
+	
+	private String delimiter;
 
 	private OutputCollector<DoubleWritable, Text> output;
 	private Reporter reporter;
@@ -77,6 +79,9 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 
 		LOG.info("Max record length: " + maxRecordLength);
 
+		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
+		LOG.info("Item delimiter: " + delimiter);
+		
 		try
 		{
 			fs = FileSystem.get(jobConf);
@@ -107,7 +112,7 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 					throws IOException
 	{
 		String leftKey = leftFile + Config.SepFilePosition + key.toString();
-		Set<String> leftRecord = Sets.newHashSet(value.toString().trim().split(Config.SepItemsRegex));
+		Set<String> leftRecord = Sets.newHashSet(value.toString().trim().split(delimiter));
 
 		int exp = leftRecord.size() > maxRecordLength ? maxRecordLength : leftRecord.size();
 		double leftWeight = Math.pow(2, exp);
@@ -129,7 +134,7 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 						unread = false;
 						reporter.incrCounter(DpsCounters.SUCC_DRY_RUN_TIMES, 1);
 						// read, then sample
-						Set<String> rightRecord = Helper.readRecordAsSet(fs, rp.getKey(), offset);
+						Set<String> rightRecord = Helper.readRecordAsSet(fs, rp.getKey(), offset, delimiter);
 						int intersect = Sets.intersection(leftRecord, rightRecord).size();
 						double weight = leftWeight - Math.pow(2, intersect);
 

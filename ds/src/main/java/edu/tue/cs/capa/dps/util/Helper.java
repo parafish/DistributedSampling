@@ -39,9 +39,9 @@ public class Helper
 		return record;
 	}
 	
-	public static Set<String> readRecordAsSet(FileSystem fs, Path path, long offset) throws IOException
+	public static Set<String> readRecordAsSet(FileSystem fs, Path path, long offset, String delimiter) throws IOException
 	{
-		String [] line = readRecord(fs, path, offset).split(Config.SepItemsRegex);
+		String [] line = readRecord(fs, path, offset).split(delimiter);
 		return Sets.newHashSet(line);
 		//		return new HashSet<String>(Arrays.asList(line));
 	}
@@ -89,14 +89,14 @@ public class Helper
 	 * @param pattern a set of items
 	 * @return a string containing the items
 	 */
-	public static String composePattern(Collection<String> pattern)
-	{
-		StringBuilder builder = new StringBuilder();
-		for (String s : pattern)
-			builder.append(s).append(" ");
-		builder.deleteCharAt(builder.lastIndexOf(" "));
-		return builder.toString();
-	}
+//	public static String composePattern(Collection<String> pattern)
+//	{
+//		StringBuilder builder = new StringBuilder();
+//		for (String s : pattern)
+//			builder.append(s).append(" ");
+//		builder.deleteCharAt(builder.lastIndexOf(" "));
+//		return builder.toString();
+//	}
 
 
 	/** A Comparator optimized for DoubleWritable. */

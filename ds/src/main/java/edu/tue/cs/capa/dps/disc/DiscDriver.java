@@ -1,10 +1,13 @@
 package edu.tue.cs.capa.dps.disc;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
@@ -19,6 +22,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import edu.tue.cs.capa.dps.util.Config;
+import edu.tue.cs.capa.dps.util.DpsExceptions.NonFixedLineLengthException;
 import edu.tue.cs.capa.dps.util.Helper.DecreasingDoubleWritableComparator;
 
 
@@ -54,9 +58,21 @@ public class DiscDriver extends Configured implements Tool
 		jobConf.set(Config.RIGHT_PATH, rightInput.toString());
 		jobConf.set(Config.N_SAMPLES, String.valueOf(nSamples));
 
+		// detect the line length of the right dataset
+		// fetch the line length
+		FileSystem fs = FileSystem.get(getConf());
+		FSDataInputStream fsInputStream = fs.open(new Path(rightInput.toString() + "/part-00000"));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(fsInputStream));
+		int lineLength = reader.readLine().length();
+		if (lineLength !=  reader.readLine().length())	// check if the line lengths are the same
+			throw new NonFixedLineLengthException("Line length is not fixed");
+		reader.close();
+		jobConf.setInt(Config.RIGHT_LINE_LENGTH, lineLength + 1);
+		LOG.info("Detected right line length (without \\n): " + lineLength);
+		
+		
 		if (ow) // delete the output
 		{
-			FileSystem fs = FileSystem.get(jobConf);
 			fs.delete(output, true);
 		}
 
@@ -87,6 +103,7 @@ public class DiscDriver extends Configured implements Tool
 		System.out.println("\tMappers: " + jobConf.getNumMapTasks());
 		System.out.println("\tReducers: " + jobConf.getNumReduceTasks());
 		System.out.println("\tConfigurations: ");
+		System.out.println("\t\t\tDelimiter: " + jobConf.get(Config.ITEM_DELIMITER, Config.SepItems));
 		System.out.println("\t\t\tRight dataset path: " + jobConf.get(Config.RIGHT_PATH));
 		System.out.println("\t\t\tLength of lines in the right dataset: " + jobConf.getInt(Config.RIGHT_LINE_LENGTH, 0));;
 		System.out.println("\t\t\tMaiximum record length: "

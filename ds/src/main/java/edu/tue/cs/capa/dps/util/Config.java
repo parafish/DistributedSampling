@@ -14,13 +14,15 @@ public class Config
 	// can be explicitly set
 	public static final String MIN_PATTERN_LENGTH = "dps.min.pattern.length";
 	public static final String MAX_RECORD_LENGTH = "dps.max.record.length";
+	
+	public static final String ITEM_DELIMITER = "dps.item.delimiter";
 	// default values
 	public static final int DEFAULT_MIN_PATTERN_LENGTH = 0; // adjustable
 	public static final int DEFAULT_MAX_RECORD_LENGTH = 50; // adjustable
 			
 	// separators
-	public final static String SepItems = " ";
-	public final static String SepItemsRegex = " +";
+	public final static String SepItems = " +";
+//	public final static String SepItemsRegex = " +";
 	public final static String SepIndexes = ",";
 	public final static String SepIndexRecord = ",";
 	public final static String SepIndexWeight = " ";

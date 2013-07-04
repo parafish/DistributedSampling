@@ -89,6 +89,7 @@ public class FreqDriver extends Configured implements Tool
 		System.out.println("\tMappers:\t" + jobConf.getNumMapTasks());
 		System.out.println("\tReducers:\t" + jobConf.getNumReduceTasks());
 		System.out.println("\tConfigurations: ");
+		System.out.println("\t\t\tDelimiter: " + jobConf.get(Config.ITEM_DELIMITER, Config.SepItems));
 		System.out.println("\t\t\tMaiximum record length: "
 						+ jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH));
 		System.out.println("\t\t\tMinimum Pattern length: "
