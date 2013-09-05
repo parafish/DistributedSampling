@@ -21,8 +21,8 @@ public class Config
 	public static final int DEFAULT_MAX_RECORD_LENGTH = 50; // adjustable
 			
 	// separators
-	public final static String SepItems = " +";
-//	public final static String SepItemsRegex = " +";
+	public final static String SepItems = " ";
+//	public final static String SepItemsRegex = "\t";
 	public final static String SepIndexes = ",";
 	public final static String SepIndexRecord = ",";
 	public final static String SepIndexWeight = " ";

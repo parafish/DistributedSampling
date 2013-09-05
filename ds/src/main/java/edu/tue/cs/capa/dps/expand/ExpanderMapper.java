@@ -31,6 +31,12 @@ public class ExpanderMapper extends MapReduceBase implements Mapper<Writable, Te
 	public void map(Writable key, Text value, OutputCollector<NullWritable, Text> output, Reporter reporter)
 					throws IOException
 	{
+		if (key.toString() == "85")
+		{
+			System.out.println(value.toString());
+			System.out.println(value.toString().length());
+			System.out.println(value.toString().trim().length());
+		}
 		String line = value.toString().trim();
 		if (line.length() < lineLength)
 		{
@@ -41,7 +47,7 @@ public class ExpanderMapper extends MapReduceBase implements Mapper<Writable, Te
 		}
 		else
 		{
-			output.collect(NullWritable.get(), value);
+			output.collect(NullWritable.get(), new Text(line));
 		}
 	}
 

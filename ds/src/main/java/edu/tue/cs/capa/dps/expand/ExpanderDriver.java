@@ -31,7 +31,7 @@ public class ExpanderDriver extends Configured implements Tool
 	private static final Log LOG = LogFactory.getLog(ExpanderDriver.class);
 
 
-	private ExpanderDriver()
+	public ExpanderDriver()
 	{
 
 	}
@@ -106,8 +106,7 @@ public class ExpanderDriver extends Configured implements Tool
 		expanderConf.setMapperClass(ExpanderMapper.class);
 		expanderConf.setNumReduceTasks(0);
 
-		FileOutputFormat.setOutputPath(expanderConf, new Path(output + "/" + inputPath.getName() + "-expanded-"
-						+ (lineLength)));
+		FileOutputFormat.setOutputPath(expanderConf, new Path(output + "/" + inputPath.getName() + "-expanded"));
 		expanderConf.setOutputFormat(TextOutputFormat.class);
 		expanderConf.setOutputKeyClass(NullWritable.class);
 		expanderConf.setOutputValueClass(Text.class);
@@ -138,10 +137,9 @@ public class ExpanderDriver extends Configured implements Tool
 	}
 
 
-	public static void main(String[] args) throws Exception
+	public static int main(String[] args) throws Exception
 	{
 		int exitCode = ToolRunner.run(new ExpanderDriver(), args);
-		System.exit(exitCode);
-
+		return exitCode;
 	}
 }

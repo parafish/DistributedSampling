@@ -60,6 +60,7 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 		LOG.info("Max record length: " + maxRecordLength);
 		
 		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
+		delimiter += "+";
 		LOG.info("Item delimiter: " + delimiter);
 
 		
