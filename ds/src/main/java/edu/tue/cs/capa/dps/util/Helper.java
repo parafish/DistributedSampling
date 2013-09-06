@@ -43,7 +43,6 @@ public class Helper
 	{
 		String [] line = readRecord(fs, path, offset).split(delimiter);
 		return Sets.newHashSet(line);
-		//		return new HashSet<String>(Arrays.asList(line));
 	}
 
 

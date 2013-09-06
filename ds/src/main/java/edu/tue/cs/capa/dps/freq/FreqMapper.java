@@ -93,8 +93,11 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 	{
 		for (Sampler<String> sampler : instances)
 		{
-			this.output.collect(new DoubleWritable(sampler.getKey()), new Text(sampler.getItem()));
-			this.reporter.incrCounter(DpsCounters.OVERFLOWED_TIMES, sampler.getOverflowed());
+			if (sampler.getItem() != null)
+			{
+				this.output.collect(new DoubleWritable(sampler.getKey()), new Text(sampler.getItem()));
+				this.reporter.incrCounter(DpsCounters.OVERFLOWED_TIMES, sampler.getOverflowed());
+			}
 		}
 	}
 

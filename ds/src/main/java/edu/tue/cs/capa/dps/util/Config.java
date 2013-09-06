@@ -15,7 +15,7 @@ public class Config
 	public final static String SepIndexes = ",";
 	public final static String SepIndexRecord = ",";
 	public final static String SepIndexWeight = " ";
-	public final static String SepRecords = ",";
+//	public final static String SepRecords = ",";
 	public final static String SepFilePosition = "@";
 		
 	

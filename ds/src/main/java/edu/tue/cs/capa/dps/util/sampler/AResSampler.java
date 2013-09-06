@@ -6,7 +6,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 
 public class AResSampler<T> implements Sampler<T>
 {
-	private double key;
+	private double key = -1.0d;		// be minimum
 	private T item;
 
 	private BitsStreamGenerator random = new MersenneTwister();
@@ -23,7 +23,7 @@ public class AResSampler<T> implements Sampler<T>
 	{
 		if (weight <= 0.0d)
 			return false;
-
+		
 		double exp = 1.0d / weight;
 		double r = random.nextDouble();
 		double candidateKey = Math.pow(r, exp);
