@@ -79,7 +79,7 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 
 		LOG.info("Max record length: " + maxRecordLength);
 
-		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
+		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.DEFAULT_ITEM_DELIMITER);
 		delimiter += "+";
 		LOG.info("Item delimiter: " + delimiter);
 		

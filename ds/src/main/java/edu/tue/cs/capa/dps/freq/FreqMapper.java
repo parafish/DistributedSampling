@@ -35,8 +35,6 @@ import edu.tue.cs.capa.dps.util.sampler.Sampler;
  */
 public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, DoubleWritable, Text>
 {
-	private static final Log LOG = LogFactory.getLog(FreqMapper.class);
-
 	private String filePath;
 	private List<Sampler<String>> instances;
 	private OutputCollector<DoubleWritable, Text> output;
@@ -57,11 +55,11 @@ public class FreqMapper extends MapReduceBase implements Mapper<Writable, Text, 
 			throw new MissingParameterException("The sample size is not set");
 		
 		maxRecordLength = jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH);
-		LOG.info("Max record length: " + maxRecordLength);
+		System.out.println("Max record length: " + maxRecordLength);
 		
-		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
+		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.DEFAULT_ITEM_DELIMITER);
 		delimiter += "+";
-		LOG.info("Item delimiter: " + delimiter);
+		System.out.println("Item delimiter: \'" + delimiter + "\'");
 
 		
 		instances = new ArrayList<Sampler<String>>(nSamples);

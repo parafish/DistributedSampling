@@ -49,7 +49,7 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 
 		minPatternLength = jobConf.getInt(Config.MIN_PATTERN_LENGTH, Config.DEFAULT_MIN_PATTERN_LENGTH);
 
-		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
+		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.DEFAULT_ITEM_DELIMITER);
 		LOG.info("Item delimiter: " + delimiter);
 		
 		try

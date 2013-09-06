@@ -4,7 +4,7 @@ import org.apache.hadoop.util.ProgramDriver;
 
 import edu.tue.cs.capa.dps.disc.CombinedDiscDriver;
 import edu.tue.cs.capa.dps.disc.DiscDriver;
-import edu.tue.cs.capa.dps.expand.ExpanderDriver;
+import edu.tue.cs.capa.dps.disc.expand.ExpanderDriver;
 import edu.tue.cs.capa.dps.freq.FreqDriver;
 
 
@@ -17,9 +17,9 @@ public class SamplingDriver
 		try
 		{
 			pgd.addClass("expand", ExpanderDriver.class, "expand lines to a fixed length");
-			pgd.addClass("disc", DiscDriver.class, "sample according to discriminativity");
+			pgd.addClass("disc2", DiscDriver.class, "sample according to discriminativity");
 			pgd.addClass("freq", FreqDriver.class, "sample according to frequency");
-			pgd.addClass("d", CombinedDiscDriver.class, "combine expander and disc sampler");
+			pgd.addClass("disc", CombinedDiscDriver.class, "combine expander and disc sampler");
 			pgd.driver(args);
 			exitCode = 0;
 		}
@@ -27,6 +27,7 @@ public class SamplingDriver
 		{
 			e.printStackTrace();
 		}
+		
 		System.exit(exitCode);
 	}
 

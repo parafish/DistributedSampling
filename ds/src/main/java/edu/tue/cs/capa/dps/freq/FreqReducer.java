@@ -26,8 +26,6 @@ import edu.tue.cs.capa.dps.util.Helper;
 
 public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable, Text, DoubleWritable, Text>
 {
-	private static final Log LOG = LogFactory.getLog(FreqReducer.class);
-
 	private FileSystem fs;
 	private int nSamples;
 	private int collectedSample = 0;
@@ -46,9 +44,10 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 			throw new MissingParameterException("The sample size is not set");
 
 		minPatternLength = jobConf.getInt(Config.MIN_PATTERN_LENGTH, Config.DEFAULT_MIN_PATTERN_LENGTH);
-		
-		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.SepItems);
-		LOG.info("Item delimiter: " + delimiter);
+		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.DEFAULT_ITEM_DELIMITER);
+
+		System.out.println("Minimum pattern length: " + minPatternLength);
+		System.out.println("Item delimiter: \'" + delimiter + "\'");
 		
 		try
 		{
@@ -56,7 +55,7 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 		}
 		catch (IOException e)
 		{
-			LOG.error("IO Exception when reading input file");
+			System.err.println("IO Exception when reading input file");
 			throw new RuntimeException(e);
 		}
 	}
@@ -69,7 +68,7 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 		if (maxKey == 0.0d)
 		{
 			maxKey = key.get();
-			LOG.info("The maximum key: " + maxKey);
+			System.out.println("The maximum key: " + maxKey);
 		}
 
 		while (collectedSample < nSamples && values.hasNext())

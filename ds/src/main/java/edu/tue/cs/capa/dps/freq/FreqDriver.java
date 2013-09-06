@@ -25,11 +25,6 @@ import edu.tue.cs.capa.dps.util.Helper.DecreasingDoubleWritableComparator;
 
 public class FreqDriver extends Configured implements Tool
 {
-	private static final Log LOG = LogFactory.getLog(FreqDriver.class);
-
-	private boolean ow = true;
-
-
 	private FreqDriver()
 	{
 
@@ -46,21 +41,16 @@ public class FreqDriver extends Configured implements Tool
 			return -1;
 		}
 
-		Path leftInput = new Path(args[0]);
-		Path output = new Path(args[1]);
+		Path inputPath = new Path(args[0]);
+		Path outputPath = new Path(args[1]);
 		int nSamples = Integer.parseInt(args[2]);
 
 		JobConf jobConf = new JobConf(getConf(), getClass());
 		jobConf.set(Config.N_SAMPLES, String.valueOf(nSamples));
 
-		if (ow) // delete the output
-		{
-			FileSystem fs = FileSystem.get(jobConf);
-			fs.delete(output, true);
-		}
-
-		FileInputFormat.addInputPath(jobConf, leftInput);
-		FileOutputFormat.setOutputPath(jobConf, output);
+		
+		FileInputFormat.addInputPath(jobConf, inputPath);
+		FileOutputFormat.setOutputPath(jobConf, outputPath);
 
 		jobConf.setInputFormat(TextInputFormat.class);
 		jobConf.setMapperClass(FreqMapper.class);
@@ -79,28 +69,24 @@ public class FreqDriver extends Configured implements Tool
 		if (jobConf.getJobName() == "")
 			jobConf.setJobName("FrequentPatternSampling");
 		System.out.println("DistributedPatternSampling (" + jobConf.getJobName() + ")");
+		
 		System.out.println("\tInput paths: ");
 		Path[] inputs = FileInputFormat.getInputPaths(jobConf);
 		for (int ctr = 0; ctr < inputs.length; ctr++)
 			System.out.println("\t\t\t" + inputs[ctr].toString());
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(jobConf));
+		
 		System.out.println("\tSample:\t" + jobConf.getInt(Config.N_SAMPLES, 0));
-		System.out.println("\tMappers:\t" + jobConf.getNumMapTasks());
-		System.out.println("\tReducers:\t" + jobConf.getNumReduceTasks());
 		System.out.println("\tConfigurations: ");
-		System.out.println("\t\t\tDelimiter: \'" + jobConf.get(Config.ITEM_DELIMITER, Config.SepItems) + "\'");
+		System.out.println("\t\t\tDelimiter: \'" 
+						+ jobConf.get(Config.ITEM_DELIMITER, Config.DEFAULT_ITEM_DELIMITER) + "\'");
 		System.out.println("\t\t\tMaiximum record length: "
 						+ jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH));
 		System.out.println("\t\t\tMinimum Pattern length: "
 						+ jobConf.getInt(Config.MIN_PATTERN_LENGTH, Config.DEFAULT_MIN_PATTERN_LENGTH));
 
-		Date startTime = new Date();
-		System.out.println("Job started: " + startTime);
 		JobClient.runJob(jobConf);
-		Date end_time = new Date();
-		System.out.println("Job ended: " + end_time);
-		System.out.println("The job took " + (end_time.getTime() - startTime.getTime()) / (float) 1000.0 + " seconds.");
 		return 0;
 	}
 

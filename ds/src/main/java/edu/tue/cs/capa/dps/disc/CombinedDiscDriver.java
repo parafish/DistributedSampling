@@ -7,7 +7,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import edu.tue.cs.capa.dps.expand.ExpanderDriver;
+import edu.tue.cs.capa.dps.disc.expand.ExpanderDriver;
 
 public class CombinedDiscDriver extends Configured implements Tool {
 

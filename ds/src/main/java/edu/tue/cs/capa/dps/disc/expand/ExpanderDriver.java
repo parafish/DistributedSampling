@@ -1,4 +1,4 @@
-package edu.tue.cs.capa.dps.expand;
+package edu.tue.cs.capa.dps.disc.expand;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -19,6 +19,8 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapred.jobcontrol.Job;
+import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -29,7 +31,7 @@ import edu.tue.cs.capa.dps.util.Config;
 public class ExpanderDriver extends Configured implements Tool
 {
 	private static final Log LOG = LogFactory.getLog(ExpanderDriver.class);
-
+	Path tempDir = new Path("temp");
 
 	public ExpanderDriver()
 	{
@@ -47,16 +49,15 @@ public class ExpanderDriver extends Configured implements Tool
 			return -1;
 		}
 
-		String input = args[0];
-		Path inputPath = new Path(input);
-		String output = args[1];
+		Path inputPath = new Path(args[0]);
+		Path outputPath = new Path(args[1]);
 
-		Path lineLengthPath = new Path(output + "/longest-line-length");
+		Path lineLengthPath = new Path(tempDir.toString() + "/longest-line-length");
 
 		// find the longest line length
 		JobConf longestLineLengthConf = new JobConf(getConf(), getClass());
 
-		FileInputFormat.addInputPath(longestLineLengthConf, new Path(input));
+		FileInputFormat.addInputPath(longestLineLengthConf, inputPath);
 		longestLineLengthConf.setInputFormat(TextInputFormat.class);
 
 		longestLineLengthConf.setMapperClass(LongestLineLengthMapper.class);
@@ -78,35 +79,34 @@ public class ExpanderDriver extends Configured implements Tool
 			System.out.println("\t\t\t" + inputs[ctr].toString());
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(longestLineLengthConf));
-		System.out.println("\tMappers: " + longestLineLengthConf.getNumMapTasks());
-		System.out.println("\tReducers: " + longestLineLengthConf.getNumReduceTasks());
 		
-		Date startTime = new Date();
-		System.out.println("Job started: " + startTime);
 		JobClient.runJob(longestLineLengthConf);
-		Date end_time = new Date();
-		System.out.println("Job ended: " + end_time);
-		System.out.println("The job took " + (end_time.getTime() - startTime.getTime()) / (float) 1000.0 + " seconds.");
 
 		// fetch the line length
 		FileSystem fs = FileSystem.get(getConf());
-		FSDataInputStream fsInputStream = fs.open(new Path(lineLengthPath.toString() + "/part-00000"));
+		FSDataInputStream fsInputStream = fs.open(new Path(lineLengthPath.toString() + "/part-00000"));	// XXX: name may change ?
 		BufferedReader reader = new BufferedReader(new InputStreamReader(fsInputStream));
 		int lineLength = Integer.parseInt((reader.readLine().trim()));
 		reader.close();
-		LOG.info("Line length (without '\\n'): " + lineLength);
+		fs.delete(lineLengthPath, true);
+		System.out.println("\tLine length (without '\\n'): " + lineLength);
 
+		
+		/*
+		 * expand each line with a given line length
+		 */
+		
 		// expand each line
 		JobConf expanderConf = new JobConf(getConf(), getClass());
 		expanderConf.setInt(Config.LONGEST_LINE_LENGTH, lineLength);
 
-		FileInputFormat.addInputPath(expanderConf, new Path(input));
+		FileInputFormat.addInputPath(expanderConf, inputPath);
 		expanderConf.setInputFormat(TextInputFormat.class);
 
 		expanderConf.setMapperClass(ExpanderMapper.class);
 		expanderConf.setNumReduceTasks(0);
 
-		FileOutputFormat.setOutputPath(expanderConf, new Path(output + "/" + inputPath.getName() + "-expanded"));
+		FileOutputFormat.setOutputPath(expanderConf, outputPath);
 		expanderConf.setOutputFormat(TextOutputFormat.class);
 		expanderConf.setOutputKeyClass(NullWritable.class);
 		expanderConf.setOutputValueClass(Text.class);
@@ -115,23 +115,16 @@ public class ExpanderDriver extends Configured implements Tool
 		if (expanderConf.getJobName() == "")
 			expanderConf.setJobName("LineExpander");
 		System.out.println("DistributedPatternSampling (" + expanderConf.getJobName() + ")");
+		
 		System.out.println("\tInput paths: ");
 		inputs = FileInputFormat.getInputPaths(expanderConf);
 		for (int ctr = 0; ctr < inputs.length; ctr++)
 			System.out.println("\t\t\t" + inputs[ctr].toString());
 		System.out.println("\tOutput path: ");
 		System.out.println("\t\t\t" + FileOutputFormat.getOutputPath(expanderConf));
-		System.out.println("\tLongest line length (without \\n)): " + lineLength);
-		System.out.println("\tMappers: " + expanderConf.getNumMapTasks());
-		System.out.println("\tReducers: " + expanderConf.getNumReduceTasks());
+
 		
-		
-		startTime = new Date();
-		System.out.println("Job started: " + startTime);
 		JobClient.runJob(expanderConf);
-		end_time = new Date();
-		System.out.println("Job ended: " + end_time);
-		System.out.println("The job took " + (end_time.getTime() - startTime.getTime()) / (float) 1000.0 + " seconds.");
 
 		return 0;
 	}

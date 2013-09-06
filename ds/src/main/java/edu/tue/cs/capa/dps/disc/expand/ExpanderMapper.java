@@ -1,7 +1,8 @@
-package edu.tue.cs.capa.dps.expand;
+package edu.tue.cs.capa.dps.disc.expand;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -31,24 +32,21 @@ public class ExpanderMapper extends MapReduceBase implements Mapper<Writable, Te
 	public void map(Writable key, Text value, OutputCollector<NullWritable, Text> output, Reporter reporter)
 					throws IOException
 	{
-		if (key.toString() == "85")
-		{
-			System.out.println(value.toString());
-			System.out.println(value.toString().length());
-			System.out.println(value.toString().trim().length());
-		}
 		String line = value.toString().trim();
-		if (line.length() < lineLength)
-		{
-			StringBuilder builder = new StringBuilder(line);
-			for (int i = 0; i < lineLength - line.length(); i++) 
-				builder.append(" ");
-			output.collect(NullWritable.get(), new Text(builder.toString()));
-		}
-		else
-		{
-			output.collect(NullWritable.get(), new Text(line));
-		}
+		String expandedLine = StringUtils.rightPad(line, lineLength);
+		output.collect(NullWritable.get(), new Text(expandedLine));
+		
+//		if (line.length() < lineLength)
+//		{
+//			StringBuilder builder = new StringBuilder(line);
+//			for (int i = 0; i < lineLength - line.length(); i++) 
+//				builder.append(" ");
+//			output.collect(NullWritable.get(), new Text(builder.toString()));
+//		}
+//		else
+//		{
+//			output.collect(NullWritable.get(), new Text(line));
+//		}
 	}
 
 }

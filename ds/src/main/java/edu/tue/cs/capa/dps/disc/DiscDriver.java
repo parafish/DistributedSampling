@@ -102,7 +102,7 @@ public class DiscDriver extends Configured implements Tool
 		System.out.println("\tMappers: " + jobConf.getNumMapTasks());
 		System.out.println("\tReducers: " + jobConf.getNumReduceTasks());
 		System.out.println("\tConfigurations: ");
-		System.out.println("\t\t\tDelimiter: \'" + jobConf.get(Config.ITEM_DELIMITER, Config.SepItems) + "\'");
+		System.out.println("\t\t\tDelimiter: \'" + jobConf.get(Config.ITEM_DELIMITER, Config.DEFAULT_ITEM_DELIMITER) + "\'");
 		System.out.println("\t\t\tRight dataset path: " + jobConf.get(Config.RIGHT_PATH));
 		System.out.println("\t\t\tLength of lines in the right dataset: " + jobConf.getInt(Config.RIGHT_LINE_LENGTH, 0));;
 		System.out.println("\t\t\tMaiximum record length: "
