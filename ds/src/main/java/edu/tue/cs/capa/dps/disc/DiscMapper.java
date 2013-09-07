@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -32,8 +33,6 @@ import edu.tue.cs.capa.dps.util.sampler.DryRunSampler;
 
 public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, DoubleWritable, Text>
 {
-	private static final Log LOG = LogFactory.getLog(DiscMapper.class);
-
 	private int nSample;
 
 	private int maxRecordLength;
@@ -60,12 +59,11 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 	{
 		leftFile = jobConf.get("map.input.file");
 		rightDir = jobConf.get(Config.RIGHT_PATH);
-		LOG.info("Left file path: " + leftFile);
-		LOG.info("Right file path: " + rightDir);
+		System.out.println("Left file path: " + leftFile);
+		System.out.println("Right file path: " + rightDir);
 
 		maxRecordLength = jobConf.getInt(Config.MAX_RECORD_LENGTH, Config.DEFAULT_MAX_RECORD_LENGTH);
 		rightLineLength = jobConf.getInt(Config.RIGHT_LINE_LENGTH, 0);
-
 		nSample = jobConf.getInt(Config.N_SAMPLES, 0);
 
 		if (nSample == 0)
@@ -77,31 +75,37 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 		for (int i = 0; i < nSample; i++)
 			instances.add(new DryRunSampler<String>());
 
-		LOG.info("Max record length: " + maxRecordLength);
+		System.out.println("Max record length: " + maxRecordLength);
 
 		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.DEFAULT_ITEM_DELIMITER);
 		delimiter += "+";
-		LOG.info("Item delimiter: " + delimiter);
+		System.out.println("Item delimiter: " + delimiter);
 		
 		try
 		{
 			fs = FileSystem.get(jobConf);
 			Path rightPath = new Path(rightDir);
-			FileStatus rightDirStatus = fs.getFileStatus(new Path(rightDir));
-			if (!rightDirStatus.isDir())
+			FileStatus rightPathStatus = fs.getFileStatus(rightPath);
+		
+			if ( ! rightPathStatus.isDir())
 			{
-				rightPaths.put(rightDirStatus.getPath(), rightDirStatus.getLen() / rightLineLength);
+				rightPaths.put(rightPathStatus.getPath(), rightPathStatus.getLen() / rightLineLength);
 			}
 			else
 			{
-				for (FileStatus fileStatus : fs.listStatus(rightPath))
+				for (FileStatus fileStatus : fs.listStatus(rightPath, new PathFilter() {
+					@Override
+					public boolean accept(Path path) {	return path.getName().startsWith("part");	}
+					}))
+				{
 					if (!fileStatus.isDir() && fileStatus.getLen() > 0)
 						rightPaths.put(fileStatus.getPath(), fileStatus.getLen() / rightLineLength);
+				}
 			}
 		}
 		catch (IOException e)
 		{
-			LOG.error("IO Exception when reading right file list");
+			System.err.println("IO Exception when reading right file list");
 			throw new RuntimeException(e);
 		}
 
@@ -139,9 +143,12 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 						int intersect = Sets.intersection(leftRecord, rightRecord).size();
 						double weight = leftWeight - Math.pow(2, intersect);
 
-						StringBuilder index = new StringBuilder();
-						index.append(leftKey).append(Config.SepIndexes).append(rp.getKey().toString())
-										.append(Config.SepFilePosition).append(offset);
+						StringBuilder index = new StringBuilder()
+													.append(leftKey)
+													.append(Config.SepIndexes)
+													.append(rp.getKey().toString())
+													.append(Config.SepFilePosition)
+													.append(offset);
 						if (sampler.sample(index.toString(), weight))
 						{
 							reporter.incrCounter(DpsCounters.SUCC_SAMPLE_TIMES, 1);
@@ -176,7 +183,7 @@ public class DiscMapper extends MapReduceBase implements Mapper<Writable, Text, 
 			}
 			catch (NullPointerException exception)
 			{
-				System.out.println("Nothing in the sampler");
+				System.err.println("Nothing in sampler " + instances.indexOf(sampler));
 			}
 		}
 	}

@@ -28,13 +28,11 @@ import edu.tue.cs.capa.dps.util.Helper;
 public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable, Text, DoubleWritable, Text>
 {
 
-	private static final Log LOG = LogFactory.getLog(DiscReducer.class);
-
 	private FileSystem fs;
 	private int nSamples;
 	private int collectedSample = 0;
 
-	private int minPatternLength;
+	private int minPatternLength;	// XXX: minimum pattern length cannot be set here
 	private double maxKey = 0.0d;
 
 	private String delimiter;
@@ -43,14 +41,14 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 	@Override
 	public void configure(JobConf jobConf)
 	{
-		nSamples = Integer.parseInt(jobConf.get(Config.N_SAMPLES));
+		nSamples = jobConf.getInt(Config.N_SAMPLES, 0);
 		if (nSamples == 0)
 			throw new MissingParameterException("The sample size is not set");
 
 		minPatternLength = jobConf.getInt(Config.MIN_PATTERN_LENGTH, Config.DEFAULT_MIN_PATTERN_LENGTH);
 
 		delimiter = jobConf.get(Config.ITEM_DELIMITER, Config.DEFAULT_ITEM_DELIMITER);
-		LOG.info("Item delimiter: " + delimiter);
+		System.out.println("Item delimiter: " + delimiter);
 		
 		try
 		{
@@ -58,7 +56,7 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 		}
 		catch (IOException e)
 		{
-			LOG.error("IO Exception when reading input file");
+			System.err.println("IO Exception when reading input file");
 			throw new RuntimeException(e);
 		}
 	}
@@ -71,7 +69,7 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 		if (maxKey == 0.0d)
 		{
 			maxKey = key.get();
-			LOG.info("The maximum key: " + maxKey);
+			System.out.println("The maximum key: " + maxKey);
 		}
 
 		while (collectedSample < nSamples && values.hasNext())
@@ -91,14 +89,23 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 			Set<String> leftRecord = Helper.readRecordAsSet(fs, leftPath, leftOffset, delimiter);
 			Set<String> rightRecord = Helper.readRecordAsSet(fs, rightPath, rightOffset, delimiter);
 			
-			List<String> complement = Helper.sampleUniformly(Sets.difference(leftRecord, rightRecord), 1);
-			List<String> intersect = Helper.sampleUniformly(Sets.intersection(leftRecord, rightRecord), 0);
+			Set<String> difference = Sets.difference(leftRecord, rightRecord);
+			Set<String> intersection = Sets.intersection(leftRecord, rightRecord);
 			
-			Set<String> pattern = Sets.newTreeSet(complement);
-			pattern.addAll(intersect);
-			
-			if (pattern.size() == 0)
-				return;
+			Set<String> pattern = Sets.newTreeSet();
+
+			if (leftRecord.size() <= minPatternLength)	// not possible!
+				pattern.addAll(leftRecord);
+			else
+				do
+				{
+					pattern.clear();
+					List<String> complement = Helper.sampleUniformly(difference, 1);
+					List<String> intersect = Helper.sampleUniformly(intersection, 0);
+					
+					pattern.addAll(complement);
+					pattern.addAll(intersect);
+				} while (pattern.size() < minPatternLength);
 
 			output.collect(key, new Text(StringUtils.join(delimiter, pattern)));
 		}

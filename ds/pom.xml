@@ -53,6 +53,67 @@
 		</repository>
 	</repositories>
 
+
+	<profiles>
+		<profile>
+			<id>cdh3</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-core</artifactId>
+					<version>0.20.2-cdh3u5</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-examples</artifactId>
+					<version>0.20.2-cdh3u5</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-mrunit</artifactId>
+					<version>0.20.2-cdh3u5</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-tools</artifactId>
+					<version>0.20.2-cdh3u5</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-test</artifactId>
+					<version>0.20.2-cdh3u5</version>
+				</dependency>
+
+			</dependencies>
+		</profile>
+		<profile>
+			<id>cdh4</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-core</artifactId>
+					<version>2.0.0-mr1-cdh4.2.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-tools</artifactId>
+					<version>2.0.0-mr1-cdh4.2.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-hdfs</artifactId>
+					<version>2.0.0-cdh4.2.0</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apfloat</groupId>
@@ -64,41 +125,21 @@
 			<artifactId>commons-math3</artifactId>
 			<version>3.1.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-core</artifactId>
-			<version>0.20.2-cdh3u5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-examples</artifactId>
-			<version>0.20.2-cdh3u5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-mrunit</artifactId>
-			<version>0.20.2-cdh3u5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-tools</artifactId>
-			<version>0.20.2-cdh3u5</version>
-		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-test</artifactId>
-			<version>0.20.2-cdh3u5</version>
-		</dependency>
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.1</version>
 		</dependency>
+
 	</dependencies>
+
+
 	<artifactId>dps</artifactId>
 </project>

@@ -11,10 +11,10 @@ public class Config
 	public static final String RIGHT_LINE_LENGTH = "dps.right.line.length";		// used in disc
 	public static final String LONGEST_LINE_LENGTH = "dps.longest.line.length";	// used in expander
 	
-	// internal private separators
+	// internal private separators, used only in disc sampling
 	public final static String SepIndexes = ",";
-	public final static String SepIndexRecord = ",";
-	public final static String SepIndexWeight = " ";
+//	public final static String SepIndexRecord = ",";
+//	public final static String SepIndexWeight = " ";
 //	public final static String SepRecords = ",";
 	public final static String SepFilePosition = "@";
 		

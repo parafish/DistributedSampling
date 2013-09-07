@@ -57,14 +57,8 @@ public class Helper
 	{
 		Random rng = new Random();
 		List<T> pattern = new ArrayList<T>();
-		if (items.size() < minLength)
-			return pattern;
 
-		// Collections.shuffle(items);
-		// pattern.addAll(items.size() - minLength, items);
-		// Collections.sort(pattern);
-
-		if (items.size() == minLength)
+		if (items.size() <= minLength)
 		{
 			pattern.addAll(items);
 			return pattern;
@@ -81,21 +75,6 @@ public class Helper
 		return pattern;
 	}
 
-
-	/**
-	 * Composes a set of items to a string, separated by space. Used for output.
-	 * 
-	 * @param pattern a set of items
-	 * @return a string containing the items
-	 */
-//	public static String composePattern(Collection<String> pattern)
-//	{
-//		StringBuilder builder = new StringBuilder();
-//		for (String s : pattern)
-//			builder.append(s).append(" ");
-//		builder.deleteCharAt(builder.lastIndexOf(" "));
-//		return builder.toString();
-//	}
 
 
 	/** A Comparator optimized for DoubleWritable. */
