@@ -83,6 +83,7 @@ public class DiscDriver extends Configured implements Tool
 
 		jobConf.setOutputKeyComparatorClass(DecreasingDoubleWritableComparator.class);
 
+		jobConf.setNumReduceTasks(1);
 		jobConf.setReducerClass(DiscReducer.class);
 		jobConf.setOutputFormat(TextOutputFormat.class);
 		jobConf.setOutputKeyClass(DoubleWritable.class);

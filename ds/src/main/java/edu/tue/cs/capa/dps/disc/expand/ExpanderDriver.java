@@ -65,6 +65,8 @@ public class ExpanderDriver extends Configured implements Tool
 		longestLineLengthConf.setMapperClass(LongestLineLengthMapper.class);
 		longestLineLengthConf.setCombinerClass(LongestLineLengthReducer.class);
 		longestLineLengthConf.setReducerClass(LongestLineLengthReducer.class);
+		
+		longestLineLengthConf.setNumReduceTasks(1);
 
 		FileOutputFormat.setOutputPath(longestLineLengthConf, lineLengthPath);
 		longestLineLengthConf.setOutputFormat(TextOutputFormat.class);
