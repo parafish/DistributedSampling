@@ -16,8 +16,9 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
 import org.apache.hadoop.util.StringUtils;
+
+import com.google.common.collect.Sets;
 
 import edu.tue.cs.capa.dps.util.Config;
 import edu.tue.cs.capa.dps.util.DpsExceptions.MissingParameterException;
@@ -86,8 +87,9 @@ public class DiscReducer extends MapReduceBase implements Reducer<DoubleWritable
 			long leftOffset = Long.parseLong(leftIndex[1]);
 			long rightOffset = Long.parseLong(rightindex[1]);
 			
-			Set<String> leftRecord = Helper.readRecordAsSet(fs, leftPath, leftOffset, delimiter);
-			Set<String> rightRecord = Helper.readRecordAsSet(fs, rightPath, rightOffset, delimiter);
+			String delimiterRegex = delimiter + "+";
+			Set<String> leftRecord = Helper.readRecordAsSet(fs, leftPath, leftOffset, delimiterRegex);
+			Set<String> rightRecord = Helper.readRecordAsSet(fs, rightPath, rightOffset, delimiterRegex);
 			
 			Set<String> difference = Sets.difference(leftRecord, rightRecord);
 			Set<String> intersection = Sets.intersection(leftRecord, rightRecord);

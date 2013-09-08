@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,9 +81,10 @@ public class FreqReducer extends MapReduceBase implements Reducer<DoubleWritable
 			String[] pathposition = value.toString().split(Config.SepFilePosition);
 			Path inputfilepath = new Path(pathposition[0]);
 			long offset = Long.parseLong(pathposition[1]);
-			String[] record = Helper.readRecord(fs, inputfilepath, offset).split(delimiter);
+			Set<String> record = Helper.readRecordAsSet(fs, inputfilepath, offset, delimiter);
+//			String[] record = Helper.readRecord(fs, inputfilepath, offset).split(delimiter);
 
-			List<String> pattern = Helper.sampleUniformly(Arrays.asList(record), minPatternLength);
+			List<String> pattern = Helper.sampleUniformly(record, minPatternLength);
 
 			if (pattern.size() == 0)
 				return;

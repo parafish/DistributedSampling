@@ -21,7 +21,8 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
+
+import com.google.common.collect.Sets;
 
 import edu.tue.cs.capa.dps.util.Config;
 import edu.tue.cs.capa.dps.util.DpsCounters;

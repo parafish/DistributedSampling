@@ -14,7 +14,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.WritableComparator;
-import org.apache.hadoop.thirdparty.guava.common.collect.Sets;
+
+import com.google.common.collect.Sets;
 
 
 public class Helper
@@ -28,7 +29,7 @@ public class Helper
 	 * @return The desired record
 	 * @throws IOException
 	 */
-	public static String readRecord(FileSystem fs, Path input, long offset) throws IOException
+	private static String readRecord(FileSystem fs, Path input, long offset) throws IOException
 	{
 		FSDataInputStream in = fs.open(input); // find the file
 		in.seek(offset);
